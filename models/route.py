@@ -59,9 +59,10 @@ class Route():
         try:
             km = self.carrier.location.distance_to_point(self.route[0].start.place)
         except: 
-            km = 1_000_000                                                                       #hay un prbolema, ARREGLAR
+            km = 1_000_000
         for r in self.route:
             km += r.get_distance()
+            #falta la distancia hasta el depot desp del primero
         return round(km, 2)
     
     def route_cost(self):

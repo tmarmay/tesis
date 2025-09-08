@@ -86,6 +86,11 @@ class Simulation():
         plt.grid(True)
         plt.show()
 
+        # plt.scatter(xs,ys)
+        # plt.xlabel("km")
+        # plt.ylabel("cost")
+        # plt.legend()
+        # plt.show()
     def solve(self, solver="dummy_nnp"):
         for s in self.shipments:
             print(f"De {s.start.place} a {s.end.place} tw: [{s.earliest_time}, {s.latest_time}]")

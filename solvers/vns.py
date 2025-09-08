@@ -76,8 +76,7 @@ def local_search(new_sol: list[Route], isol: list[Route], modified_indices: list
             r = new_sol[idx]
             cr = isol[idx]
 
-            #current_cost = cost(cr.total_km, cr.total_cost)
-            current_cost = cost(r.total_km, r.total_cost)
+            current_cost = cost(cr.total_km, cr.total_cost) if not improved else cost(r.total_km, r.total_cost)
              
             # Extraemos todos los segmentos posibles dentro del límite de 3 nodos
             for seg1 in all_segments(r.route, max_length=3):
@@ -96,7 +95,6 @@ def local_search(new_sol: list[Route], isol: list[Route], modified_indices: list
                     
                     # Evaluamos si mejora el costo (y respeta restricciones o penaliza adecuadamente)
                     new_cost = cost(candidate.total_km, candidate.total_cost)
-                    
                     if new_cost < current_cost and check_entire_route_feasibility([candidate]):
                         # Aceptamos la mejora
                         new_sol[idx] = candidate
@@ -132,9 +130,8 @@ def mdvrptw_solver(carriers: list, shipments: list, sol:list[Route] = None):
     target_history = []
     start_time = time.perf_counter()
 
-    # Post-Condicion: isol no necesariamente es una solucion factible :list[Route]
-    isol = initial_solution(carriers, shipments)
-    #isol = mdvrptw_initial_solution(carriers, shipments)
+    #isol = initial_solution(carriers, shipments)
+    isol = mdvrptw_initial_solution(carriers, shipments)
 
     if len(isol) == 0:
         solved = False
@@ -159,11 +156,12 @@ def mdvrptw_solver(carriers: list, shipments: list, sol:list[Route] = None):
         if not optimized:
             continue
 
-        isol = new_sol
-        target_history.append((
-            sum(r.total_route_km() for r in isol),
-            sum(r.route_cost() for r in isol)
-        ))
+        if sum(r.total_route_km() for r in new_sol) < sum(r.total_route_km() for r in isol):
+            isol = new_sol
+            target_history.append((
+                sum(r.total_route_km() for r in isol),
+                sum(r.route_cost() for r in isol)
+            ))
 
     end_time = time.perf_counter()
     routes = clean(isol, end_time - start_time, target_history, solved=True)

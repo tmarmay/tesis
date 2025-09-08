@@ -1,5 +1,5 @@
-N = 7
-M = 10
+N = 80
+M = 40
 
 DISTANCES_MATRIX_PATH = '/Users/tomasmarmay/Documents/profile/famaf/tesis/data/distance_matrix.csv'
 TIMES_MATRIX_PATH = '/Users/tomasmarmay/Documents/profile/famaf/tesis/data/distance_matrix.csv' #calular
@@ -15,4 +15,4 @@ DELTA = 0
 
 #VNS
 KAPPA = 10
-MAX_TRIALS_SHAKING = 40
+MAX_TRIALS_SHAKING = 400
