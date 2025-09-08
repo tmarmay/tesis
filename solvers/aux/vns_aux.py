@@ -1,6 +1,7 @@
 from models.route import Route
+
 from random import randint, choice, sample
-from itertools import combinations
+from typing import Tuple
 
 def neighborhood_definition(kappa: int):
     """
@@ -8,35 +9,38 @@ def neighborhood_definition(kappa: int):
     basado en la tabla del paper [1.b].
     """
     table = {
-        0: ("intra-depot", 3),
-        1: ("intra-depot", 4),
-        2: ("intra-depot", 5),
-        3: ("intra-depot", 6),
-        4: ("inter-depot", 3),
-        5: ("inter-depot", 4),
-        6: ("inter-depot", 5),
-        7: ("inter-depot", 6),
-        8: ("inter-depot", 2),
-        9: ("intra-depot", 2),
+        1: ("intra-depot", 2),
+        2: ("intra-depot", 3),
+        3: ("intra-depot", 4),
+        4: ("intra-depot", 5),
+        5: ("intra-depot", 6),
+        6: ("intra-depot", 10000),
+        7: ("inter-depot", 2),
+        8: ("inter-depot", 3),
+        9: ("inter-depot", 4),
+        10: ("inter-depot", 5),
+        11: ("inter-depot", 6),
+        12: ("inter-depot", 10000),
     }
-    
-    # if kappa not in table:
-    #     raise ValueError("kappa debe estar entre 1 y 12")
-    
-    return table[kappa % 10]
+        
+    return table[kappa]
 
 from random import choice, randint
 
-def intra_shaking(neighborhood: list, max_seq_len: int) -> list[Route]:
+def intra_shaking(neighborhood: list, max_seq_len: int) -> Tuple[list[Route], list[int]]:
     if len(neighborhood) == 0:
         raise ValueError("El vecindario no puede estar vacío")
     
-    depot = choice(neighborhood)
+    index = randint(0, len(neighborhood) - 1)
+    depot = neighborhood[index]
     route = depot.route
 
     n = len(route)
     if n <= 1:
-        return neighborhood
+        return neighborhood, []
+
+    if max_seq_len > len(route):
+        max_seq_len = len(route) - 1
 
     for _ in range(max_seq_len):
         i, j = randint(0, n - 1), randint(0, n - 1)
@@ -46,21 +50,20 @@ def intra_shaking(neighborhood: list, max_seq_len: int) -> list[Route]:
         route[i], route[j] = route[j], route[i]
 
     depot.route = route
-    return neighborhood
+    return neighborhood, [index]
 
 
 
-def inter_shaking(neighborhood: list, max_seq_len: int) -> list[Route]:
+def inter_shaking(neighborhood: list, max_seq_len: int) -> Tuple[list[Route], list[int]]:
     if len(neighborhood) == 0:
         raise ValueError("El vecindario no puede estar vacío")
 
     if len(neighborhood) == 1:
-        return neighborhood
+        return neighborhood, []
 
-    depot1, depot2 = None, None
-    while depot1 == depot2:
-        depot1 = choice(neighborhood)
-        depot2 = choice(neighborhood)
+    i1, i2 = sample(range(len(neighborhood)), 2)  # elige 2 índices distintos
+    depot1 = neighborhood[i1]
+    depot2 = neighborhood[i2]
 
     route1 = depot1.route
     route2 = depot2.route
@@ -81,7 +84,7 @@ def inter_shaking(neighborhood: list, max_seq_len: int) -> list[Route]:
     k = max_seq_len #, len(transferred_nodes)
     if k > 0:
         if k > len(route1):
-            k = len(route1)/2
+            k = len(route1)
         
         nodes_to_return = sample(route1, int(k))
         # Los eliminamos de route1
@@ -95,16 +98,19 @@ def inter_shaking(neighborhood: list, max_seq_len: int) -> list[Route]:
     depot1.route = route1
     depot2.route = route2
 
-    return neighborhood
+    return neighborhood, [i1, i2]
 
 
-def all_segments(route: list, max_length: int = 3, skip_endpoints: bool = True) -> list:
+def all_segments(route: list, max_length: int = 3, skip_endpoints: bool = False) -> list:
     """
-    Devuelve todos los posibles segmentos como tuplas de índices (i, j)
-    que representan route[i:j].
+    Devuelve todos los segmentos contiguos posibles de la lista,
+    con longitud máxima = max_length.
+
+    Cada segmento se representa como (i, j], que corresponde a route[i:j].
     """
+
     n = len(route)
-    start = 1 if skip_endpoints else 0          # típico: no mover depósitos
+    start = 1 if skip_endpoints else 0
     end   = n - 1 if skip_endpoints else n
     out = []
     for i in range(start, end):

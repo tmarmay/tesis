@@ -71,15 +71,16 @@ class Simulation():
         it = 0
         for x,y in vns:
             if it == 0 :
-                plt.scatter(it, cost(x,y), marker="o", label=f"nnp isol", color='blue')
+                # x por cost(x,y)
+                plt.scatter(it, x, marker="o", label=f"nnp isol", color='blue')
             else:
                 xs.append(it)
-                ys.append(cost(x,y))
+                ys.append(x)
             it += 1
         plt.plot(xs, ys, marker="o", label=f"vns", color='green')
 
         plt.xlabel("iteracion")
-        plt.ylabel("costo")
+        plt.ylabel("km")
         plt.title("Mejora")
         plt.legend()
         plt.grid(True)
@@ -90,9 +91,9 @@ class Simulation():
             print(f"De {s.start.place} a {s.end.place} tw: [{s.earliest_time}, {s.latest_time}]")
 
         #if solver == "dummy_nnp":
-        nnp_sol = dummy_nnp.mdvrptw_solver(self.available_carriers+self.unavailable_carriers, self.shipments)
-        self.prprint(nnp_sol)
-        print('------')
+        # nnp_sol = dummy_nnp.mdvrptw_solver(self.available_carriers+self.unavailable_carriers, self.shipments)
+        # self.prprint(nnp_sol)
+        # print('------')
 
         #if solver == "vns":
         # #self.graph.show_problem(carriers=False)

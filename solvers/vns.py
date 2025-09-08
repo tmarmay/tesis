@@ -2,7 +2,7 @@
 vnsp.py
 Solver Variable Neighborhood Search (VNS) for MD-VRP-TW.
 """
-from sim_settings import KAPPA, DELTA
+from sim_settings import KAPPA, DELTA, MAX_TRIALS_SHAKING
 from solvers.aux.vns_aux import *
 from solvers.utils_vrp import cost, check_entire_route_feasibility
 from models.shipment import Shipment
@@ -13,6 +13,8 @@ from solvers.dummy_nnp import mdvrptw_initial_solution
 
 from random import randint, choice
 import time 
+from typing import List, Tuple
+import copy 
 
 L = Location()
 # ====== Initial Solution ======
@@ -41,30 +43,42 @@ def initial_solution(carriers: list, shipments: list) -> list[Route]:
     return insol
 
 
-def shaking(old_neighborhood: list[Route], kappa: int = 12) -> list[Route]:
-    neighborhood = old_neighborhood.copy()
+def shaking(current_solution: list[Route], kappa: int, max_trials: int = MAX_TRIALS_SHAKING) -> Tuple[bool, List[Route], List[int]]:
+    neighborhood = copy.deepcopy(current_solution)
     # 1. Definir parámetros de vecindad según k
-    # import ipdb; ipdb.set_trace()
-    depots_involved, max_seq_length = neighborhood_definition(kappa)
+    is_feasible = False
+    trial = 0
+    while not is_feasible and trial < max_trials:
+        depots_involved, max_seq_length = neighborhood_definition(kappa)
 
-    # 2. Elegir rutas según depots_involved
-    # if depots_involved == "intra-depot":
-    #     new_routes = intra_shaking(neighborhood, max_seq_length)     
-    # else:
-    new_routes = inter_shaking(neighborhood, max_seq_length)
-    return new_routes
+        # 2. Elegir rutas según depots_involved
+        if depots_involved == "intra-depot":
+            new_routes, modified_indices = intra_shaking(neighborhood, max_seq_length)
+        else:
+            new_routes, modified_indices = inter_shaking(neighborhood, max_seq_length)
 
-def local_search(new_sol: list[Route], isol: list[Route]) -> list[Route]:
-    frs_round = True
+        is_feasible = check_entire_route_feasibility(new_routes)
+        trial += 1
+
+    if is_feasible:
+        return True, new_routes, modified_indices # mejoro
+    
+    return False, neighborhood, modified_indices # devuelvo la misma
+
+def local_search(new_sol: list[Route], isol: list[Route], modified_indices: list[int]) -> list[Route]:
+    optimized = False
     improved = True
     while improved:
         improved = False
-        for r, cr in zip(new_sol, isol): 
-            if frs_round:
-                r.target_history.append((r.total_km, r.total_cost))
-                frs_round = False
 
-            old_cost = cost(cr.total_km, cr.total_cost)   
+        # solo tengo que hacerlo en las rutas que se modificaron
+        for idx in modified_indices:
+            r = new_sol[idx]
+            cr = isol[idx]
+
+            #current_cost = cost(cr.total_km, cr.total_cost)
+            current_cost = cost(r.total_km, r.total_cost)
+             
             # Extraemos todos los segmentos posibles dentro del límite de 3 nodos
             for seg1 in all_segments(r.route, max_length=3):
                 for seg2 in all_segments(r.route, max_length=3):
@@ -77,27 +91,23 @@ def local_search(new_sol: list[Route], isol: list[Route]) -> list[Route]:
                     if j1 > i2 and j2 > i1:
                         continue
 
-                    candidate_route = swap_segments(r.route, seg1, seg2, invert=False)
-                    candidate_route_instance = Route(route=candidate_route, carrier=r.carrier)
+                    candidate_route = swap_segments(copy.deepcopy(r.route), seg1, seg2, invert=False)
+                    candidate = Route(route=candidate_route, carrier=r.carrier)
                     
                     # Evaluamos si mejora el costo (y respeta restricciones o penaliza adecuadamente)
-                    new_cost = cost(candidate_route_instance.total_km, candidate_route_instance.total_cost)
+                    new_cost = cost(candidate.total_km, candidate.total_cost)
                     
-                    if new_cost < old_cost:
-                        if check_entire_route_feasibility([candidate_route_instance]):
-                            old_cost = new_cost
-                            r.target_history.append((candidate_route_instance.total_km, candidate_route_instance.total_cost))
-                            # Aceptamos la mejora
-                            r.route[:] = candidate_route
-                            # Indicamos que hubo mejora para reiniciar el loop
-                            improved = True
-                            # Rompemos de esta iteración para reiniciar la búsqueda
-                            break
-                    if improved:
-                        break            
+                    if new_cost < current_cost and check_entire_route_feasibility([candidate]):
+                        # Aceptamos la mejora
+                        new_sol[idx] = candidate
+                        improved = True
+                        optimized = True
+                        break
+                if improved:
+                    break
             if improved:
                 break
-    return new_sol
+    return optimized, new_sol
 
 def clean(routes: dict, computation_time: float, target_history: list, solved: bool) -> dict:
     result = {}
@@ -123,8 +133,8 @@ def mdvrptw_solver(carriers: list, shipments: list, sol:list[Route] = None):
     start_time = time.perf_counter()
 
     # Post-Condicion: isol no necesariamente es una solucion factible :list[Route]
-    #isol = initial_solution(carriers, shipments)
-    isol = mdvrptw_initial_solution(carriers, shipments)
+    isol = initial_solution(carriers, shipments)
+    #isol = mdvrptw_initial_solution(carriers, shipments)
 
     if len(isol) == 0:
         solved = False
@@ -137,22 +147,24 @@ def mdvrptw_solver(carriers: list, shipments: list, sol:list[Route] = None):
         sum(r.route_cost() for r in isol)
     ))
 
-    first = True
-    while not check_entire_route_feasibility(isol) or first:
-        first = False
-        for k in range(1, KAPPA+1):
-            new_sol = shaking(isol, k)
-            r = local_search(new_sol, isol)
 
-            # if r != isol: si quiero comparar asi tengo que cambiar la comparacion de las clases (__eq__)
-            if check_entire_route_feasibility(r):
-                isol = r
-                target_history.append((
-                    sum(r.total_route_km() for r in isol),
-                    sum(r.route_cost() for r in isol)
-                ))
-
+    for k in range(1, KAPPA+1):
+        improve, new_sol, modified_indices = shaking(isol, k)
         
+        if not improve:
+            continue
+        
+        optimized, new_sol = local_search(new_sol, isol, modified_indices)
+
+        if not optimized:
+            continue
+
+        isol = new_sol
+        target_history.append((
+            sum(r.total_route_km() for r in isol),
+            sum(r.route_cost() for r in isol)
+        ))
+
     end_time = time.perf_counter()
     routes = clean(isol, end_time - start_time, target_history, solved=True)
     return routes
