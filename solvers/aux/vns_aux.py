@@ -98,54 +98,6 @@ def inter_shaking(neighborhood: list, max_seq_len: int) -> list[Route]:
     return neighborhood
 
 
-def generate_all_partition_indices(route, max_seq_len=3):
-    n = len(route)
-    partitions = []
-
-    # Generar todas las combinaciones posibles de tres índices de corte
-    # i < j < k son posiciones donde "rompemos" la ruta
-    for i, j, k in combinations(range(1, n), 3):
-        # Longitudes de los tres segmentos
-        seg1 = j - i
-        seg2 = k - j
-        seg3 = n - k
-
-        # Chequear que todas las longitudes >= max_seq_len
-        if seg1 >= max_seq_len and seg2 >= max_seq_len and seg3 >= max_seq_len:
-            partitions.append((i, j, k))
-
-    return partitions
-
-def apply_3opt_no_inversion(route, max_seq_len=3):
-    """
-    Aplica una variación de 3-opt sin inversión.
-    Devuelve la mejor ruta encontrada (o la misma si no mejora).
-    """
-    n = len(route)
-    best_route = route[:]
-    best_distance = route_distance(route)
-
-    # Generar todas las combinaciones de tres cortes
-    for i in range(1, n - 2):
-        for j in range(i + 1, n - 1):
-            for k in range(j + 1, n):
-                seg1, seg2, seg3 = route[:i], route[i:j], route[j:k]
-                seg4 = route[k:]
-
-                # Restringir por max_seq_len
-                if len(seg2) > max_seq_len or len(seg3) > max_seq_len:
-                    continue
-
-                # Crear una nueva ruta sin invertir
-                new_route = seg1 + seg3 + seg2 + seg4
-                new_distance = route_distance(new_route)
-
-                if new_distance < best_distance:
-                    best_route = new_route
-                    best_distance = new_distance
-
-    return best_route
-
 def all_segments(route: list, max_length: int = 3, skip_endpoints: bool = True) -> list:
     """
     Devuelve todos los posibles segmentos como tuplas de índices (i, j)
