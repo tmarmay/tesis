@@ -115,6 +115,7 @@ def clean(routes: dict, computation_time: float, target_history: list, solved: b
             'km': r.total_km,
             'cost': r.total_cost,
             'route': r.return_routes_names(),
+            'route_obj': r,
             'carrier depot': r.depot.place,
             # 'route_coords': [(s.start.get_coordinates(), s.end.get_coordinates()) for s in r.route],
             'relative_time': r.current_time,   

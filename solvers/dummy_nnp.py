@@ -40,6 +40,7 @@ def mdvrptw_solver(carriers: list, shipmentss: list):
                 'km': r.total_km,
                 'cost': r.total_cost,
                 'route': r.return_routes_names(),
+                'route_obj': r,
                 'carrier depot': r.depot.place,
                 # 'route_coords': route_coords,
                 'relative_time': r.current_time,

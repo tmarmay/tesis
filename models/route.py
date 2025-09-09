@@ -9,6 +9,8 @@ L = Location()
 class Route():
     def __init__(self, route: list[Shipment], carrier):
         self.route = []
+        self.start_times = []
+        self.end_times = []
         self.route_coords = []
         self.carrier = carrier
         self.depot = carrier.location
@@ -43,8 +45,15 @@ class Route():
         no devuelve el nuevo current time, sino lo que hay que sumarle
         '''
         new_ctime = L.get_tij(carrier_location, shipment_start)
+        
+        # Registro que comienza el viaje
+        self.start_times.append(self.current_time + new_ctime)
+        
         new_ctime += L.get_tij(shipment_start, shipment_end)
         new_ctime += DELTA
+        
+        # Registro cuando termina el viaje
+        self.end_times.append(self.current_time + new_ctime)
         return new_ctime
 
 
