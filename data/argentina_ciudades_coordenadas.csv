@@ -1,0 +1,503 @@
+city,lat,lng
+Buenos Aires,-34.6036,-58.3814
+Córdoba,-31.4167,-64.1833
+Rosario,-32.9575,-60.6394
+Santiago del Estero,-27.7833,-64.2667
+La Plata,-34.9211,-57.9544
+Mar del Plata,-38.0,-57.55
+San Miguel de Tucumán,-26.8167,-65.2167
+Salta,-24.7833,-65.4167
+San Juan,-31.5342,-68.5261
+Lanús,-34.7,-58.4
+Santa Fe,-31.6333,-60.7
+Corrientes,-27.4833,-58.8167
+San Salvador de Jujuy,-24.1833,-65.3
+Bahía Blanca,-38.7167,-62.2667
+Resistencia,-27.4514,-58.9867
+Neuquén,-38.9525,-68.0642
+Posadas,-27.3667,-55.9
+Paraná,-31.7331,-60.5297
+Quilmes,-34.7167,-58.2667
+Merlo,-34.6653,-58.7275
+González Catán,-34.7667,-58.6167
+Formosa,-26.1833,-58.1833
+Banfield,-34.75,-58.3833
+José C. Paz,-34.5167,-58.7667
+San Rafael,-34.6,-68.3333
+Comodoro Rivadavia,-45.8647,-67.4808
+Río Cuarto,-33.1333,-64.35
+Concordia,-31.4,-58.0333
+San Lorenzo,-32.75,-60.7333
+Godoy Cruz,-32.9167,-68.8333
+Isidro Casanova,-34.7,-58.5833
+Las Heras,-32.85,-68.8167
+La Rioja,-29.4125,-66.8542
+Berazategui,-34.7167,-58.25
+Hurlingham,-34.6,-58.6333
+San Luis,-33.3,-66.3333
+San Fernando,-34.45,-58.5667
+José María Ezeiza,-34.8333,-58.5167
+San Nicolás de los Arroyos,-33.3333,-60.2167
+Catamarca,-28.4667,-65.7833
+San Miguel,-34.5333,-58.7167
+Rafael Castillo,-34.7167,-58.6167
+Florencio Varela,-34.8167,-58.2833
+San Justo,-34.6833,-58.55
+Villa Mercedes,-33.6667,-65.4667
+Ituzaingó,-34.6667,-58.6667
+Temperley,-34.7667,-58.3833
+Ramos Mejía,-34.65,-58.5667
+Puerto Madryn,-42.7667,-65.05
+Mendoza,-32.8897,-68.8444
+San Carlos de Bariloche,-41.15,-71.3
+Lomas de Zamora,-34.7667,-58.4
+Bernal,-34.7,-58.2833
+Esteban Echeverría,-34.8167,-58.4667
+Gualeguaychú,-33.0167,-58.5167
+Zárate,-34.0833,-59.0333
+Castelar,-34.6667,-58.6667
+Villa Krause,-31.5833,-68.5333
+Luján,-34.5667,-59.1
+Maipú,-32.9667,-68.75
+La Banda,-27.7333,-64.25
+Cipolletti,-38.9333,-67.9833
+Pergamino,-33.8833,-60.5667
+Santa Rosa,-36.6167,-64.2833
+Presidencia Roque Sáenz Peña,-26.7833,-60.45
+Concepción del Uruguay,-32.4833,-58.2333
+Libertad,-34.6833,-58.6833
+Morón,-34.65,-58.6167
+Burzaco,-34.8167,-58.3667
+Río Grande,-53.7833,-67.7
+Trelew,-43.25,-65.3
+Río Gallegos,-51.6233,-69.2161
+Caseros,-34.6106,-58.5625
+Villa Luzuriaga,-34.6667,-58.5833
+Ciudad General Belgrano,-34.7167,-58.5333
+Rafaela,-31.2667,-61.4833
+San Francisco Solano,-34.7667,-58.3167
+Necochea,-38.55,-58.7333
+Olavarría,-36.9,-60.3333
+Villa María,-32.4103,-63.2314
+Berisso,-34.8728,-57.8858
+Chimbas,-31.5,-68.5319
+Campana,-34.1667,-58.9167
+Junín,-34.5833,-60.95
+General Rodríguez,-34.6167,-58.95
+Grand Bourg,-34.4833,-58.7167
+Monte Chingolo,-34.7333,-58.35
+Venado Tuerto,-33.75,-61.9667
+Ushuaia,-54.8019,-68.3031
+Rivadavia,-31.5303,-68.5947
+Rivadavia,-33.1833,-68.4667
+Puerto Iguazú,-25.6,-54.5667
+Remedios de Escalada,-34.7167,-58.4
+Pilar,-34.45,-58.9167
+Gobernador Gálvez,-33.0256,-60.6336
+Ezpeleta,-34.7517,-58.2344
+San Martín,-33.0806,-68.4706
+Villa Celina,-34.7167,-58.4833
+San Ramón de la Nueva Orán,-23.1333,-64.3333
+San Pedro,-33.6792,-59.6669
+Villa Carlos Paz,-31.4,-64.5167
+La Paz,-30.75,-59.65
+Reconquista,-29.2333,-59.9333
+Ciudadela,-34.6333,-58.5333
+Luján de Cuyo,-32.998,-68.873
+Goya,-29.1333,-59.25
+Bella Vista,-34.5333,-58.6667
+Lomas del Mirador,-34.6667,-58.5297
+Oberá,-27.4833,-55.1333
+Wilde,-34.7,-58.3167
+Martínez,-34.4833,-58.5
+Santo Tomé,-31.6667,-60.7667
+Don Torcuato,-34.5,-58.6167
+Tigre,-34.5,-58.6167
+Gerli,-34.6833,-58.3667
+Pirané,-25.7328,-59.11
+Ensenada Berisso,-34.8667,-57.9
+Mercedes,-34.65,-59.4333
+Banda del Río Salí,-26.85,-65.1667
+Tartagal,-22.5,-63.8333
+Tres Arroyos,-38.3667,-60.2667
+Villa Domínico,-34.6917,-58.3333
+San Francisco,-31.4356,-62.0714
+Los Polvorines,-34.5,-58.7
+Sarandí,-34.6833,-58.3333
+Viedma,-40.8,-63.0
+Garín,-34.4167,-58.75
+El Palomar,-34.6167,-58.5833
+Beccar,-34.4667,-58.5167
+San Pedro,-24.2196,-64.87
+Punta Alta,-38.88,-62.075
+Chivilcoy,-34.9,-60.0167
+Glew,-34.8833,-58.3833
+General Pico,-35.6667,-63.7333
+Eldorado,-26.4,-54.6333
+Rafael Calzada,-34.7833,-58.3667
+Azul,-36.7833,-59.85
+Barranqueras,-27.4833,-58.9333
+Belén de Escobar,-34.3333,-58.8167
+Ensenada,-34.8644,-57.9103
+Mariano Acosta,-34.7167,-58.7833
+Guernica,-34.9167,-58.3833
+Plottier,-38.95,-68.2333
+Caleta Olivia,-46.4333,-67.5333
+El Talar de Pacheco,-34.4719,-58.655
+Palpalá,-24.25,-65.1167
+Yerba Buena,-26.8167,-65.3167
+Concepción,-27.3333,-65.5833
+Villaguay,-31.85,-59.0167
+Perico,-24.3833,-65.1167
+Tunuyán,-33.5667,-69.0167
+Centenario,-38.8,-68.1333
+Florida,-34.5167,-58.5
+Alta Gracia,-31.6667,-64.4333
+La Reja,-34.6394,-58.8283
+Cosquín,-31.2436,-64.4653
+San Lorenzo,-28.1381,-58.7681
+Longchamps,-34.85,-58.3833
+Catriel,-37.8667,-67.8333
+Villa Constitución,-33.2333,-60.3333
+General Martín Miguel de Güemes,-24.6667,-65.05
+Clorinda,-25.2833,-57.7167
+San Justo,-30.7833,-60.5833
+Libertador General San Martín,-23.8,-64.7833
+Río Tercero,-32.1833,-64.1
+Trenque Lauquen,-35.9667,-62.7
+Chajarí,-30.7667,-57.9833
+La Calera,-31.3439,-64.3353
+Pinamar,-37.1,-56.85
+Balcarce,-37.8456,-58.2578
+San Vicente,-35.0167,-58.4167
+San Isidro,-34.4739,-58.525
+General Pacheco,-34.45,-58.65
+Paso de los Libres,-29.7167,-57.0833
+Dock Sur,-34.6417,-58.3478
+Gualeguay,-33.15,-59.3333
+Coronel Suárez,-37.4667,-61.9333
+Esperanza,-31.4427,-60.9257
+Tolosa,-34.8942,-57.9647
+Llavallol,-34.7667,-58.3833
+Villa Ángela,-27.5833,-60.7167
+Tortuguitas,-34.475,-58.7556
+Claypole,-34.8,-58.3333
+Villa Alsina,-34.6667,-58.4167
+José Mármol,-34.7833,-58.3667
+Apóstoles,-27.9167,-55.7667
+Zapala,-38.9,-70.0667
+Cutral-Có,-38.9333,-69.2333
+Tafí Viejo,-26.7333,-65.2667
+Virreyes,-34.45,-58.5333
+Marcos Paz,-34.7667,-58.8333
+Ingeniero Pablo Nogués,-34.4667,-58.7667
+Chacabuco,-34.6333,-60.4667
+Funes,-32.9167,-60.8167
+Aristóbulo del Valle,-27.1167,-54.9167
+San Antonio de Padua,-34.6667,-58.7
+Haedo,-34.65,-58.6
+Granadero Baigorria,-32.85,-60.7
+San Martín de los Andes,-40.1667,-71.35
+Esquel,-42.9,-71.3167
+Nueve de Julio,-35.45,-60.8833
+Munro,-34.5333,-58.5167
+Veinticinco de Mayo,-35.4167,-60.1667
+Villa Adelina,-34.5167,-58.5333
+Villa Ballester,-34.5167,-58.5333
+General Villegas,-35.0333,-63.0167
+Casilda,-33.05,-61.1667
+Curuzú Cuatiá,-29.7833,-58.0833
+Bell Ville,-32.6333,-62.6833
+Chilecito,-29.1667,-67.5
+Chascomús,-35.575,-58.0089
+Mercedes,-29.2,-58.0833
+Bragado,-35.1167,-60.5
+City Bell,-34.85,-58.05
+Arrecifes,-34.0667,-60.1167
+Termas de Río Hondo,-27.4833,-64.8667
+Cañada de Gómez,-32.8167,-61.4
+Aguilares,-27.4333,-65.6167
+Quitilipi,-26.8667,-60.2167
+Fontana,-27.4167,-59.0333
+Cañuelas,-35.0333,-58.7333
+Avellaneda,-34.6625,-58.3678
+Allen,-38.9667,-67.8333
+General José de San Martín,-26.5375,-59.3417
+Jesús María,-30.9833,-64.1
+Pehuajó,-35.8,-61.9
+Lobos,-35.1833,-59.0833
+Pichanal,-23.3167,-64.2167
+Cruz del Eje,-30.7333,-64.8
+Gobernador Virasora,-28.05,-56.0333
+Victoria,-32.6167,-60.1667
+Miramar,-38.2667,-57.8333
+Villa Regina,-39.1,-67.0667
+Brandsen,-35.1667,-58.2167
+General Alvear,-34.9667,-67.7
+Villa Dolores,-31.9333,-65.2
+Villa Gesell,-37.25,-56.9833
+Capitán Bermúdez,-32.8167,-60.7167
+Bella Vista,-28.4667,-59.05
+Garupá,-27.4833,-55.8333
+Baradero,-33.8,-59.5167
+General San Martín,-34.5667,-58.5333
+Adrogue,-34.8,-58.3833
+Caucete,-31.65,-68.2833
+Lincoln,-34.85,-61.5167
+Malargüe,-35.475,-69.5833
+Cinco Saltos,-38.8167,-68.0667
+Castelli,-25.95,-60.6167
+Marcos Juárez,-32.7,-62.1
+Santa María,-26.6833,-66.0333
+San Antonio de Areco,-34.25,-59.4667
+Las Flores,-36.0139,-59.1
+Frías,-28.6333,-65.1333
+San Andrés de Giles,-34.4333,-59.4333
+Charata,-27.2167,-61.2
+Pérez,-33.0,-60.7667
+Muñiz,-34.5333,-58.7
+Rosario de la Frontera,-25.8,-64.9667
+Dolores,-36.3167,-57.6667
+Firmat,-33.45,-61.4833
+Jardín América,-27.05,-55.2333
+Mar de Ajó,-36.7203,-56.6878
+Leandro N. Alem,-27.6,-55.3333
+Candelaria,-27.4594,-55.7453
+Tres Isletas,-26.35,-60.4167
+Rawson,-43.3,-65.1
+Vicente López,-34.5333,-58.475
+Embarcación,-23.2167,-64.1
+Tapiales,-34.7058,-58.5047
+Monte Caseros,-30.25,-57.65
+Avellaneda,-29.1175,-59.6583
+Santo Tomé,-28.55,-56.05
+Añatuya,-28.4667,-62.8333
+Monteros,-27.1667,-65.5
+Colón,-33.8833,-61.1
+Colón,-32.2167,-58.1333
+Manuel B. Gonnet,-34.85,-58.0167
+Las Breñas,-27.0667,-61.0667
+Famaillá,-27.05,-65.4
+El Calafate,-50.3378,-72.26
+Nogoyá,-32.4,-59.8
+General Viamonte,-35.0,-61.0333
+Melchor Romero,-34.9492,-58.0472
+San Martín,-31.4397,-68.5206
+Machagai,-26.9167,-60.0333
+Rosario de Lerma,-24.9833,-65.5833
+Deán Funes,-30.4333,-64.35
+Alejandro Korn,-34.9667,-58.3667
+Carlos Casares,-35.6167,-61.3667
+San Isidro de Lules,-26.9333,-65.35
+Joaquín V. González,-25.0833,-64.1833
+San José de Jáchal,-30.2333,-68.75
+Pico Truncado,-46.795,-67.955
+Don Bosco,-34.7,-58.2833
+General Belgrano,-35.7667,-58.5
+Profesor Salvador Mazza,-22.05,-63.7
+Arroyo Seco,-33.1667,-60.5
+Santa Elena,-30.95,-59.8
+Sunchales,-30.9333,-61.5667
+Laboulaye,-34.1167,-63.4
+Carmen de Patagones,-40.7833,-62.9667
+Gálvez,-32.0333,-61.2167
+Matheu,-34.3667,-58.8333
+Saavedra,-37.7833,-62.35
+Río Segundo,-31.6501,-63.9116
+Villa Elisa,-34.8533,-58.0792
+Arroyito,-31.4167,-63.05
+Ituzaingó,-27.6,-56.6667
+Crespo,-32.0333,-60.3167
+San Jorge,-31.8961,-61.8597
+Vera,-29.4667,-60.2167
+Diamante,-32.0667,-60.65
+Billinghurst,-34.5667,-58.5333
+Martín Coronado,-34.6,-58.55
+Villa Ocampo,-28.4833,-59.35
+Santa Rosa de Calamuchita,-32.0667,-64.5333
+El Bolsón,-41.9667,-71.5333
+Rufino,-34.2619,-62.7114
+Carlos Spegazzini,-34.8833,-58.5667
+Villa Nueva,-32.4331,-63.2475
+Junín de los Andes,-39.9167,-71.0667
+Unquillo,-31.2333,-64.3167
+Saladas,-28.25,-58.6167
+Monte Cristo,-31.3431,-63.9444
+Aldo Bonzi,-34.7083,-58.5181
+Coronda,-31.9667,-60.9167
+General Juan Madariaga,-37.0167,-57.1333
+General Las Heras,-34.9333,-58.95
+General Deheza,-32.7564,-63.7889
+Las Heras,-46.55,-68.95
+Cerrillos,-24.9,-65.4833
+Puerto Rico,-26.8,-55.0167
+Villa Sarmiento,-34.6333,-58.5667
+Ayacucho,-37.1333,-58.4667
+Carcarañá,-32.85,-61.15
+Morteros,-30.7,-62.0
+La Quiaca,-22.1042,-65.5972
+Daireaux,-36.6,-61.75
+Federación,-30.9833,-57.9167
+Puan,-37.55,-62.7667
+General Arenales,-34.2833,-61.2833
+Villa San José,-32.2,-58.2167
+La Falda,-31.0833,-64.5
+San Antonio Oeste,-40.7333,-64.95
+Carhué,-37.1796,-62.7601
+Federal,-30.95,-58.8
+Capitán Sarmiento,-34.1667,-59.7833
+Plaza Huincul,-38.9338,-69.1987
+La Lucila,-34.4833,-58.4833
+Santa Rosa,-33.25,-68.15
+General Pinedo,-27.3167,-61.2833
+Chos Malal,-37.3833,-70.2667
+Wanda,-25.9667,-54.5833
+Villa del Rosario,-31.5833,-63.5333
+San Luis del Palmar,-27.5167,-58.5667
+Villa Paranacito,-33.7,-58.6833
+Fray Luis A. Beltrán,-32.7833,-60.7333
+Bella Vista,-27.0333,-65.3
+Villa Ojo de Agua,-29.5167,-63.7
+Pilar,-31.6833,-63.9
+Tostado,-29.2333,-61.7667
+Ceres,-29.8667,-61.95
+Rauch,-36.7667,-59.1
+General Cabrera,-32.7994,-63.8683
+San Cristóbal,-30.3167,-61.2333
+Benito Juárez,-37.6667,-59.7833
+Villa La Angostura,-40.7625,-71.6463
+Puerto Deseado,-47.75,-65.9167
+Roldán,-32.9011,-60.9072
+Andalgalá,-27.6,-66.3167
+Pigüé,-37.6167,-62.4167
+San Javier,-30.5833,-59.95
+Puerto San Martín,-32.7167,-60.7333
+Oncativo,-31.9167,-63.6667
+General Enrique Mosconi,-22.6,-63.8167
+Las Rosas,-32.4833,-61.5833
+Chamical,-30.3667,-66.3167
+Adolfo Gonzáles Chaves,-38.0333,-60.0833
+Acasusso,-34.4667,-58.5167
+Rosario del Tala,-32.3,-59.1333
+San Salvador,-31.6167,-58.5
+General Acha,-37.3833,-64.6
+Monte Quemado,-25.8036,-62.8303
+La Carlota,-33.4333,-63.3
+Ingeniero Maschwitz,-34.3667,-58.75
+Las Lomitas,-24.7072,-60.5944
+Las Parejas,-32.6833,-61.5333
+Laguna Paiva,-31.3039,-60.6589
+Villa Unión,-29.3,-68.2
+Belén,-27.65,-67.0333
+Presidencia de la Plaza,-26.9833,-59.8333
+Lobería,-38.1333,-58.7667
+Malvinas Argentinas,-31.3697,-64.0531
+Justo Daract,-33.8667,-65.1667
+Ibicuy,-33.7333,-59.1833
+Villa Berthet,-27.2667,-60.4167
+Carmen de Areco,-34.3858,-59.8294
+Recreo,-29.2667,-65.0667
+Cafayate,-26.0833,-65.9667
+Tornquist,-38.1,-62.2167
+Río Colorado,-38.9908,-64.0958
+Oliva,-32.0333,-63.5667
+Villa General Belgrano,-31.9667,-64.5667
+Santa Lucía,-28.9833,-59.1
+Navarro,-35.0167,-59.2667
+Coronel Dorrego,-38.7,-61.2667
+Tinogasta,-28.0667,-67.5667
+Ramallo,-33.3167,-60.2
+Humahuaca,-23.2,-65.35
+Senillosa,-39.01,-68.43
+Hernando,-32.4167,-63.7333
+Capilla del Monte,-30.85,-64.5167
+Armstrong,-32.7833,-61.6
+San Bernardo,-27.2667,-60.7
+El Trébol,-32.1833,-61.7167
+San Carlos Centro,-31.7333,-61.1
+Quimilí,-27.6333,-62.4167
+Roque Pérez,-35.4167,-59.3167
+Bernardo de Irigoyen,-26.25,-53.9833
+San Roque,-28.5667,-58.7167
+Santa Rosa de Río Primero,-31.15,-63.3833
+Sarmiento,-45.6,-69.0833
+Villa Nougues,-26.8578,-65.3756
+Campo Largo,-26.8,-60.8333
+Frontera,-31.4278,-62.0619
+Ingeniero White,-38.7667,-62.2667
+Corzuela,-26.9333,-60.9667
+Corral de Bustos,-33.2833,-62.2
+Leones,-32.6589,-62.2967
+Ranchos,-35.5333,-58.2833
+San José de Feliciano,-30.3833,-58.75
+Villa Elisa,-32.1667,-58.4
+Batán,-38.0078,-57.7097
+Choele Choel,-39.2667,-65.6833
+La Leonesa,-27.05,-58.7167
+Brinkmann,-30.8669,-62.0336
+Kaiken,-54.5062,-67.1905
+Alcorta,-33.5333,-61.1167
+Ciudad de Loreto,-28.3,-64.2
+General Alvear,-36.0333,-60.0167
+Puerto Tirol,-27.3667,-59.0667
+Basavilbaso,-32.3667,-58.8833
+Embalse,-32.1833,-64.4167
+Henderson,-36.2833,-61.7167
+La Paz,-33.4667,-67.55
+Santa María,-31.2611,-64.4639
+Pedro Luro,-39.5,-62.6833
+Villa Cañás,-34.0,-61.6
+Huinca Renancó,-34.84,-64.3753
+Abra Pampa,-22.7167,-65.7
+Punta Indio,-35.2667,-57.2167
+Magdalena,-35.0833,-57.5167
+Empedrado,-27.9333,-58.7833
+Capilla del Señor,-34.2833,-59.1
+Romang,-29.5,-59.7667
+Monte Rico,-24.4514,-65.1667
+Sauce,-30.0667,-58.7667
+Rada Tilly,-45.9333,-67.5333
+Santa Sylvina,-27.7833,-61.15
+Coronel Du Graty,-27.6667,-60.9333
+Mburucuyá,-28.05,-58.2333
+Urdinarrain,-32.6856,-58.8867
+Villa Aberastain,-31.65,-68.5833
+Viale,-31.8667,-60.0167
+Maipú,-36.8667,-57.8667
+Balneario Monte Hermoso,-38.9833,-61.3
+Yacimiento Río Turbio,-51.5333,-72.3
+La Cruz,-28.1833,-56.65
+Pampa del Infierno,-26.5167,-61.1667
+San Julián,-49.3,-67.7167
+Ingeniero Guillermo N. Juárez,-23.9,-61.85
+Comandante Luis Piedra Buena,-49.983,-68.91
+Ingeniero Jacobacci,-41.3,-69.5833
+Las Lajas,-38.6,-70.3
+Veintiocho de Noviembre,-51.65,-72.3
+Chepes,-31.35,-66.6
+Veinticinco de Mayo,-37.7712,-67.7174
+General Conesa,-40.1,-64.4167
+San Antonio de los Cobres,-24.2178,-66.32
+Perito Moreno,-46.5886,-70.9242
+Gobernador Gregores,-48.7667,-70.25
+Victorica,-36.2167,-65.45
+Comandante Fontana,-25.3333,-59.6833
+El Maitén,-42.05,-71.1667
+Uspallata,-32.5667,-69.3167
+Darregueira,-37.6996,-63.1666
+Trancas,-26.2172,-65.2831
+Villalonga,-39.8829,-62.5833
+Río Mayo,-45.6869,-70.26
+Rodeo,-30.2164,-69.1394
+Chumbicha,-28.8667,-66.2333
+Alto Río Senguer,-45.0167,-70.8167
+Sierra Colorada,-40.5833,-67.8
+Villa Rumipal,-32.1879,-64.4803
+Los Blancos,-23.6,-62.6
+Susques,-23.4167,-66.4833
+Comallo,-41.0333,-70.2667
+Gastre,-42.2667,-69.2167
+Telsen,-42.3833,-66.95
+Tandil,-37.3167,-59.1333
+Rinconada,-22.4333,-66.1667
+General Roca,-39.0333,-67.5833
