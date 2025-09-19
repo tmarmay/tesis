@@ -14,7 +14,7 @@ from scipy.optimize import linprog
 N = 3 # Nodos incluye depot y customers
 V = 2 # Vehiculos 
 C = [1,2] # Customers sin los depots
-demands = [1, 2]#despues hay que hacerlo vector por cada customer
+demands = [1, 1]#despues hay que hacerlo vector por cada customer
 Q = 1 # capacidad máxima del vehículo.
 
 DIM = V * N * N

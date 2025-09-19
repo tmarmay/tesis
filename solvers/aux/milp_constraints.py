@@ -31,9 +31,9 @@ def constraint_33_ub(DIM, C, N, V, demands, Q):
     
     for k in range(V):
         row = np.zeros(DIM)
-        for i in C:  # solo clientes
+        for t,i in enumerate(C):  # solo clientes
             for j in range(N):  # todos los destinos posibles
-                row[idx(k, N, i, j)] = demands[i]
+                row[idx(k, N, i, j)] = demands[t]
         A_ub.append(row)
         b_ub.append(Q)
     
