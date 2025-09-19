@@ -22,11 +22,23 @@ def constraint_32_eq(DIM, C, N, V):
     
     return np.array(A_eq), np.array(b_eq)
 
-def constraint_33_eq(C, N, V):
+def constraint_33_ub(DIM, C, N, V, demands, Q):
     """
     Que el vehiculo no supere la capacidad
     """
-    pass
+    A_ub = []
+    b_ub = []
+    
+    for k in range(V):
+        row = np.zeros(DIM)
+        for i in C:  # solo clientes
+            for j in range(N):  # todos los destinos posibles
+                row[idx(k, N, i, j)] = demands[i]
+        A_ub.append(row)
+        b_ub.append(Q)
+    
+    return np.array(A_ub), np.array(b_ub)
+
 
 def constraint_34_eq(DIM, N, V):
     """
