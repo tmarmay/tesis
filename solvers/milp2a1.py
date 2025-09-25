@@ -4,89 +4,126 @@ Solver Milp for MD-VRP-TW.
 2a1 version.
 """
 
-from solvers.utils_vrp import check_tw_feasibility
-from solvers.aux.milp_constraints import *
+# from solvers.utils_vrp import check_tw_feasibility
+# from solvers.aux.milp_constraints import *
 import numpy as np
-
-from scipy.optimize import linprog
-
+import pyomo.environ as pyo
 
 N = 3 # Nodos incluye depot y customers
 V = 2 # Vehiculos 
+cost_matrix = np.array([[0,10,12],
+                  [10,0,800],
+                  [12,800,0]])
+
+F = 5 # penalizacion por usar auto
+
+
 C = [1,2] # Customers sin los depots
 demands = [1, 1]#despues hay que hacerlo vector por cada customer
-Q = 1 # capacidad máxima del vehículo.
-
-DIM = V * N * N
-
-cost_matrix = np.array([[0,10,12],
-                  [10,0,8],
-                  [12,8,0]])
+Q = 2 # capacidad máxima del vehículo.
+DIM = (V * N * N) #+ (V * N) + (V)
+DIM_XIJK = V * N * N
+DIM_SIK = V * N
+DIM_UK = V
 
 
-def build_cost_vector(cost_matrix, N, V):
-    """
-    Construye el vector de costos c para linprog.
+tij = np.array([[0,5,5],
+                  [5,0,5],
+                  [5,5,0]])
+
+ei = [0, 0, 0]
+li = [100, 0, 100]
+
+def objective_rule(model):
+    #return sum(cost_matrix[i][j] * model.x[k, i, j] for k in range(V) for i in range(N) for j in range(N))
+
+    # Costo de los viajes
+    travel_cost = sum(cost_matrix[i][j] * model.x[k, i, j] for k in range(V) for i in range(N) for j in range(N))
     
-    cost_matrix: matriz NxN con costos c[i][j]
-    N: número de nodos
-    V: número de vehículos
+    # Costo de los vehículos (F_k) basado en las variables u_k
+    vehicle_cost = sum(F * model.u[k] for k in range(V))  # F[k] es el costo del vehículo k
+    
+    # La función objetivo es la suma de ambos costos
+    return travel_cost + vehicle_cost
 
-    En este caso no hace falta user idx porque la recorro en orden.
-    """
-    c = []
-    bounds = []
+#Cada nodo debe ser visitado exactamente una vez
+def constraint_32_eq(model, i):
+    if i != 0:  # El depósito (nodo 0) no se cuenta
+        return sum(model.x[k, i, j] for k in range(V) for j in range(N) if i != j) == 1
+    else:
+        return pyo.Constraint.Skip  # El depósito no tiene restricción de visita
+
+#Tiene que salir del depot
+def constraint_34_eq(model, k):
+    return sum(model.x[k, 0, j] for j in range(1, N)) == model.u[k]
+
+#Tiene que volver al depot
+def constraint_36_eq(model, k):
+    return sum(model.x[k, j, 0] for j in range(1, N)) == model.u[k]
+
+#Conservascion flujo
+def constraint_35_eq(model, h, k):
+    inpt = (model.x[k, i, h] for i in range(N) if i != h )
+    outpt = (model.x[k, h, j] for j in range(N) if j != h)
+    return sum(inpt) - sum(outpt) == 0
+
+#Variables para los vehiculos
+def constraint_min_vehicle(model):
+    return sum(model.u[k] for k in range(V)) >= 1
+
+# ====== Main Function ======
+def milp2a2_solver():
+    # Crear el modelo de optimización
+    model = pyo.ConcreteModel()
+
+    # Definir las variables
+    model.x = pyo.Var(range(V), range(N), range(N), domain=pyo.Binary)  # xijk binaria
+    model.u = pyo.Var(range(V), domain=pyo.Binary)  # uk binaria
+
+    # Inicializar x[i, j, k] = 0 para las combinaciones donde i == j
     for k in range(V):
         for i in range(N):
             for j in range(N):
                 if i == j:
-                    c.append(0)
-                    bounds.append((0,0)) # Lo anulo, equivalente a poner un costo muy alto
-                else:
-                    c.append(cost_matrix[i][j])
-                    bounds.append((0,1))
-    return np.array(c), bounds
+                    model.x[k, i, j].fix(0)  # Fijar x[i, j, k] a 0 cuando i == j
 
-            
-def restrictions():
-    # assignment
-    A_eq2, b_eq2 = constraint_32_eq(DIM, C, N, V)
-    A_ub3, b_ub3 = constraint_33_ub(DIM, C, N, V, demands, Q)
-    A_eq4, b_eq4 = constraint_34_eq(DIM, N, V)
-    A_eq5, b_eq5 = constraint_35_eq(DIM, C, N, V)
-    A_eq6, b_eq6 = constraint_36_eq(DIM, N, V, DEPOT=0)
+    # Función objetivo: Minimizar los costos de los viajes
+    model.obj = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
+    
+    model.visit_once = pyo.Constraint(range(1, N), rule=constraint_32_eq)
+    model.from_depot = pyo.Constraint(range(V), rule=constraint_34_eq)
+    model.back2_depot = pyo.Constraint(range(V), rule=constraint_36_eq)
+    model.flow = pyo.Constraint(range(1, N), range(V), rule=constraint_35_eq)
+    model.uk = pyo.Constraint(rule=constraint_min_vehicle)
 
-    # Apilamos todas las matrices A_eq verticalmente
-    # Concatenamos todos los vectores b_eq horizontalmente
-    A_eq = np.vstack([A_eq2, A_eq5, A_eq6, A_eq4])
-    b_eq = np.hstack([b_eq2, b_eq5, b_eq6, b_eq4])
+    # Resolver el modelo
+    solver = pyo.SolverFactory('glpk')
+    results = solver.solve(model, tee=False)
 
-    A_ub = np.vstack([A_ub3])
-    b_ub = np.hstack([b_ub3])
-    return A_eq, b_eq, A_ub, b_ub
+    # Verificar el estado de la solución
+    print("Estado de la solución:", results.solver.status)
+    print("Condición de terminación:", results.solver.termination_condition)
 
+    # Verificar el estado de la solución
+    if results.solver.status == pyo.SolverStatus.ok:
+        print("La solución fue encontrada con éxito.")
+    elif results.solver.status == pyo.SolverStatus.error:
+        print("Hubo un error al resolver el problema.")
+    else:
+        print("Estado del solver:", results.solver.status)
 
-def get_vehicle_routes(solution, depot=0):
+    # Imprimir las variables de decisión (xijk)
+    print("\nVariables de decisión (xijk):")
     for k in range(V):
-        costo = 0
-        route = f"k={k} : "
         for i in range(N):
             for j in range(N):
-                if solution.x[idx(k, N, i, j )] == 1:
-                    route += f"{i} → "
-                    costo += cost_matrix[i][j]
-        route += f"0 costo={costo}"
-        print(route)
-    print(f"costo total {solution.fun}")
+                if model.x[k, i, j].value:  # Solo imprimir si xijk es 1 (viaje hecho)
+                    print(f"x[{k},{i},{j}] = {model.x[k, i, j].value}")
+    # Imprimir las variables u (carga de los vehículos)
+    print("\nCarga de los vehículos (uk):")
+    for k in range(V):
+        print(f"u[{k}] = {model.u[k].value}")
 
-# ====== Main Function ======
-def milp2a2_solver(): # carriers: list, shipments: list, sol:list = None 
-    #empiezo con V=N y hasta que me de una solucion(result.solve) y no empeore el costo hago V-1
-
-    c, bounds = build_cost_vector(cost_matrix, N, V)
-    c.flatten()
-    
-    A_eq, b_eq, A_ub, b_ub = restrictions()
-
-    result = linprog(c, A_eq=A_eq, b_eq=b_eq, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs', options={"disp": True})
-    get_vehicle_routes(result)
+    #Imprimir el valor objetivo (costo total)
+    print("\nValor objetivo (costo total):", model.obj())
+milp2a2_solver()
