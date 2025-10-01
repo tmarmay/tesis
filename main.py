@@ -1,5 +1,5 @@
 from sim_settings import N, M
-from solvers import dummy_nnp, vns
+from solvers import dummy_nnp, vns, milp2a1
 from models.carrier import Carrier
 from models.shipment import Shipment
 from models.network_representation import VirtualGraph
@@ -176,14 +176,17 @@ class Simulation():
         # print('------')
 
         #if solver == "vns":
-        # #self.graph.show_problem(carriers=False)
-        solution = vns.mdvrptw_solver(self.available_carriers + self.unavailable_carriers, self.shipments)
-        self.prprint(solution)
+        #self.graph.show_problem(carriers=False)
+        # solution = vns.mdvrptw_solver(self.available_carriers + self.unavailable_carriers, self.shipments)
+        # self.prprint(solution)
+        # from visualizations import graph
+        
+        # if solution['solved']:
+        #     self.plot_cost(solution['target_history'])
+        #     self.plot_target(solution['target_history'])
+        #     self.plot_grant(solution)
 
-        if solution['solved']:
-            self.plot_cost(solution['target_history'])
-            self.plot_target(solution['target_history'])
-            self.plot_grant(solution)
+        milp2a1.milp2a2_solver()
         
 
 

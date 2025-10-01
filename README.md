@@ -3,5 +3,11 @@
 #### Tomas Marmay ~ Famaf 2025
 
 ```bash
+pip install -r req.txt
+sudo apt-get install glpk-utils
+```
+
+
+```bash
 python3 main.py
 ```
