@@ -35,7 +35,7 @@ DEPOTS = [i for i in range(C[-1] + 1, C[-1] + 1 + V)]
 RETURNS = DEPOTS # SOLO PORQUE ESTOY EN EL MODELO SIMPLIDICADO
 
 cost_matrix = np.array([[100,10,12],
-                        [10,100,8],
+                        [10,100,8], #la matriz tiene que ser espejo con la diagonal porque no es dirigido
                         [12,8,100]]) # para decir que no puedo ir de i a j: Poner 0 en eta[i][j] y/o tau[i][j] va a hacer que la prob sea 0
 
 # =============================
