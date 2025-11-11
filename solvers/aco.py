@@ -34,10 +34,11 @@ C = [i for i in range(CUSTOMERS)] #CUSTOMERS
 DEPOTS = [i for i in range(C[-1] + 1, C[-1] + 1 + V)]
 RETURNS = DEPOTS # SOLO PORQUE ESTOY EN EL MODELO SIMPLIDICADO
 
-cost_matrix = np.array([[100,10,12],
-                        [10,100,8], #la matriz tiene que ser espejo con la diagonal porque no es dirigido
+cost_matrix = np.array([[100,1,12],
+                        [1,100,8], #la matriz tiene que ser espejo con la diagonal porque no es dirigido
                         [12,8,100]]) # para decir que no puedo ir de i a j: Poner 0 en eta[i][j] y/o tau[i][j] va a hacer que la prob sea 0
 
+F = [5 for _ in range(V)] # penalizacion por usar auto
 # =============================
 # Inicialización de feromonas
 # =============================
@@ -69,29 +70,43 @@ def select_next_node(current: int, unvisited: list) -> int:
 # ACO principal
 # el numero de ants no esta relacionado con la cantidad de vehicilos
 # cada hormiga k va a generar unba rura para cada vehivulo v
+
+#Una hormiga = una asignación completa de clientes → vehículos + orden.
+#Un vehículo v = una subruta dentro de la solución de la hormiga.
+
 # =============================
 for iteration in range(NUM_ITER):
     solutions = []
 
     for k in range(NUM_ANTS):
-        # cada hormiga empieza en el depósito 0
-        route = [0]
-        unvisited = set(C)  # clientes sin visitar
+        route = []
         total_distance = 0 # agregar total cost tamb usando la funcion
-        current = 0
 
-        while unvisited:
-            next_node = select_next_node(current, unvisited)
-            total_distance += cost_matrix[current][next_node]
-            route.append(next_node)
-            unvisited.remove(next_node)
-            current = next_node
+        for v in DEPOTS:
+            # cada hormiga empieza en el depósito 0
+            route = [v] #modificar para cada una salga de su depot
+            unvisited = set(C) - set(route) # clientes sin visitar
+            current = route[-1]
+            ready2return = 'exploring'
+            
+            while unvisited:
+                next_node = select_next_node(current, unvisited)
+                total_distance += cost_matrix[current][next_node]
+                route.append(next_node)
+                unvisited.remove(next_node)
+                current = next_node
 
-        # volver al depósito
-        total_distance += cost_matrix[current][RETURNS[0]] #deberia ser [RETURNS[current]]
-        route.append(RETURNS[0]) #igual aca
+                if not unvisited and ready2return != 'returing':
+                    ready2return = 'returing'
+                    unvisited.add(RETURNS[0])
+            # volver al depósito
+            #total_distance += cost_matrix[current][RETURNS[0]] #deberia ser [RETURNS[current]]
+            #route.append(RETURNS[0]) #igual aca
+            solutions.append((route, total_distance))
 
-        solutions.append((route, total_distance))
+            # penalización por usar este vehículo
+            if len(route) > 2:
+                total_distance += F[V - v]
 
     # Mejor de la iteración de la ant k
     iteration_best = min(solutions, key=lambda x: x[1])
