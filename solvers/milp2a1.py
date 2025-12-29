@@ -3,179 +3,196 @@ milp2a1.py
 Solver Milp for MD-VRP-TW.
 2a1 version.
 """
-import numpy as np
+from solvers.base_solver import BaseSolver
+from models.problem_instance import ProblemInstance
+from models.solutions import Solution
+
 import pyomo.environ as pyo
 
+class MILPSolver(BaseSolver):
 
-V = 1 # Vehiculos == CARRIERS
-CUSTOMERS = 2
+    def objective_rule(self, model):
+        # Costo de los viajes
+        travel_cost = sum(self.insta.cost_matrix[i][j] * model.x[k, i, j] for k in range(self.insta.V) for i in range(self.insta.N) for j in range(self.insta.N))
+        
+        # Costo de los vehículos (F_k) basado en las variables u_k
+        vehicle_cost = sum(self.insta.F[k] * model.u[k] for k in range(self.insta.V))  # F[k] es el costo del vehículo k
+        
+        #time_cost = sum(model.s[k, i] for k in range(V) for i in range(N))
+        
+        # La función objetivo es la suma de ambos costos
+        return travel_cost + vehicle_cost #+ time_cost
 
-N = CUSTOMERS + 2*V # Nodos incluye depot y customers
+    #Cada nodo debe ser visitado exactamente una vez
+    def constraint_32_eq(self, model, i):
+        # i es el cliente
+            return sum(model.x[k, i, j] for k in range(self.insta.V) for j in range(self.insta.N) if i != j) == 1
 
-cost_matrix = np.array([[0,10,1200,1000,1200,1000],
-                        [10,0,8,1000,1200,1000],
-                        [1200,8,0,1000,1200,1000],
-                        [1200,8,10,0,1200,1000],
-                        [1200,8,10,1000,0,1000],
-                        [1200,8,10,1000,1200,0]])
+    #Tiene que salir del depot
+    def constraint_34_eq(self, model, k):
+        depot = self.insta.DEPOTS[k]
+        return sum(model.x[k, depot, j] for j in range(self.insta.N) if j != depot) == model.u[k]
 
-F = [5 for _ in range(V)] # penalizacion por usar auto
+    #Tiene que volver al depot
+    def constraint_36_eq(self, model, k):
+        ret = self.insta.RETURNS_milp[k]
+        return sum(model.x[k, i, ret] for i in range(self.insta.N) if i != ret) == model.u[k]
 
-C = [i for i in range(CUSTOMERS)] # Customers sin los depots
-DEPOTS = [i for i in range(C[-1] + 1, C[-1] + 1 + V)]
-RETURNS = [i for i in range(C[-1] + V + 1, N)]
+    #Conservascion flujo
+    def constraint_35_eq(self, model, h, k):
+        depot = self.insta.DEPOTS[k]
+        ret = self.insta.RETURNS_milp[k]
+        
+        if h == depot or h == ret:
+            return pyo.Constraint.Skip
+        
+        inpt = (model.x[k, i, h] for i in range(self.insta.N) if i != h)
+        outpt = (model.x[k, h, j] for j in range(self.insta.N) if j != h)
+        return sum(inpt) - sum(outpt) == 0
 
+    #Variables para los vehiculos
+    def constraint_min_vehicle(self, model):
+        return sum(model.u[k] for k in range(self.insta.V)) >= 1
 
-Q = [2 for _ in range(V)] # capacidad máxima del vehículo.
-demands = [1 for _ in range(CUSTOMERS)] #Demenda de cada customer i
+    #Restriccion de capacidad
+    def constraint_33_ub(self, model, k):
+        return sum(model.x[k, i, j] * self.insta.demands[i] for i in self.insta.C for j in range(self.insta.N) if i != j) <= self.insta.Q[k]
 
-DIM = (V * N * N) #+ (V * N) + (V)
-DIM_XIJK = V * N * N
-DIM_SIK = V * N
-DIM_UK = V
+    #Restriccion de tiempo 
+    def constraint_37_ub(self, model, k, i, j):
+        if i == j or j == self.insta.RETURNS_milp[k]:
+            return pyo.Constraint.Skip
+        Mij = self.insta.li[i] + self.insta.tij[i][j] - self.insta.ei[j]  # Big-M
+        return model.s[k,i] + self.insta.tij[i][j] - Mij * (1 - model.x[k,i,j]) <= model.s[k,j]
 
-tij = np.array([[0,10,10,10,10,10],
-                [10,0,10,10,10,10],
-                [10,10,0,10,10,10],
-                [10,10,10,0,10,10],
-                [10,10,10,10,0,10],
-                [10,10,10,10,10,0]])
+    def s_bounds(self, model, k, i):
+        return (self.insta.ei[i], self.insta.li[i])  # ventana de tiempo para el nodo i
 
-ei = [0, 20, 0, 0, 0, 0]
-li = [10, 30, 0,0,200,200]
+    # Para cada vehiculo k: si usa algun arco (i,j) entonces u[k] = 1 (Big-M)
+    def aux1(self, model, k):
+        return sum(model.x[k, i, j] for i in range(self.insta.N) for j in range(self.insta.N) if i != j) <= self.insta.N * model.u[k]
 
-def objective_rule(model):
-    # Costo de los viajes
-    travel_cost = sum(cost_matrix[i][j] * model.x[k, i, j] for k in range(V) for i in range(N) for j in range(N))
+    # ====== Main Function ======
+    def milp2a2_solver(self, instance: ProblemInstance):
+        self.insta = instance
+        # Crear el modelo de optimización
+        model = pyo.ConcreteModel()
+
+        # Definir las variables
+        model.x = pyo.Var(range(instance.V), range(instance.N), range(instance.N), domain=pyo.Binary)  # xijk binaria
+        model.u = pyo.Var(range(instance.V), domain=pyo.Binary)  # uk binaria
+        model.s = pyo.Var(range(instance.V), range(instance.N), domain=pyo.Reals, bounds=self.s_bounds)  # sik
+
+        # Inicializar x[k, i, j] = 0 para las combinaciones donde i == j
+        for k in range(instance.V):
+            for i in range(instance.N):
+                model.x[k, i, i].fix(0)  # Fijar x[k, i, j] a 0 cuando i == j
+
+        # Función objetivo: Minimizar los costos de los viajes
+        model.obj = pyo.Objective(rule=self.objective_rule, sense=pyo.minimize)
+        
+        model.visit_once = pyo.Constraint(instance.C, rule=self.constraint_32_eq)
+        model.from_depot = pyo.Constraint(range(instance.V), rule=self.constraint_34_eq)
+        model.back2_return = pyo.Constraint(range(instance.V), rule=self.constraint_36_eq)
+        model.flow = pyo.Constraint(range(instance.N), range(instance.V), rule=self.constraint_35_eq)
+        model.uk = pyo.Constraint(rule=self.constraint_min_vehicle)
+        model.capacity = pyo.Constraint(range(instance.V), rule=self.constraint_33_ub)
+        model.time_windows = pyo.Constraint(range(instance.V), range(instance.N), range(instance.N), rule=self.constraint_37_ub)
+        
+        model.aux_link_x_u = pyo.Constraint(range(instance.V), rule=self.aux1)
+        
+        # Resolver el modelo
+        solver = pyo.SolverFactory('glpk')
+        results = solver.solve(model, tee=False)
+
+        # ===============================
+        # EXTRAER SOLUCIÓN
+        # ===============================
+
+        rutas = {}
+        visitados = set()
+        costo_total = pyo.value(model.obj)
+
+        for k in range(instance.V):
+            if pyo.value(model.u[k]) < 0.5:
+                continue  # vehículo no usado
+
+            depot = instance.DEPOTS[k]
+            ret = instance.RETURNS_milp[k]
+
+            ruta = [depot]
+            actual = depot
+
+            while actual != ret:
+                encontrado = False
+                for j in range(instance.N):
+                    if j != actual and pyo.value(model.x[k, actual, j]) > 0.5:
+                        ruta.append(j)
+                        actual = j
+                        encontrado = True
+                        if j in instance.C:
+                            visitados.add(j)
+                        break
+
+                if not encontrado:
+                    # ruta rota (no debería pasar en solución factible)
+                    break
+
+            rutas[depot] = ruta
+
+        # ===============================
+        # CLIENTES NO ATENDIDOS
+        # ===============================
+        no_visitados = [c for c in instance.C if c not in visitados]
+
+        return rutas, costo_total, no_visitados
     
-    # Costo de los vehículos (F_k) basado en las variables u_k
-    vehicle_cost = sum(F[k] * model.u[k] for k in range(V))  # F[k] es el costo del vehículo k
+    def solve(self, instance: ProblemInstance):
+        rutas, costo, no_visitados = self.milp2a2_solver(instance)
+        return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
     
-    #time_cost = sum(model.s[k, i] for k in range(V) for i in range(N))
-    
-    # La función objetivo es la suma de ambos costos
-    return travel_cost + vehicle_cost #+ time_cost
 
-#Cada nodo debe ser visitado exactamente una vez
-def constraint_32_eq(model, i):
-    # i es el cliente
-        return sum(model.x[k, i, j] for k in range(V) for j in range(N) if i != j) == 1
+"""
+tengo que boorar pero lo dejo por las dudas para debug
+        # Verificar el estado de la solución
+        print("Estado de la solución:", results.solver.status)
+        print("Condición de terminación:", results.solver.termination_condition)
 
-#Tiene que salir del depot
-def constraint_34_eq(model, k):
-    depot = DEPOTS[k]
-    return sum(model.x[k, depot, j] for j in range(N) if j != depot) == model.u[k]
+        # Verificar el estado de la solución
+        # if results.solver.status == pyo.SolverStatus.ok:
+        #     print("La solución fue encontrada con éxito.")
+        # elif results.solver.status == pyo.SolverStatus.error:
+        #     print("Hubo un error al resolver el problema.")
+        # else:
+        #     print("Estado del solver:", results.solver.status)
 
-#Tiene que volver al depot
-def constraint_36_eq(model, k):
-    ret = RETURNS[k]
-    return sum(model.x[k, i, ret] for i in range(N) if i != ret) == model.u[k]
+        if results.solver.termination_condition != "infeasible":
+            # Imprimir las variables de decisión (xijk)
+            print("\nVariables de decisión (xkij):")
+            for k in range(instance.V):
+                for i in range(instance.N):
+                    for j in range(instance.N):
+                        if model.x[k, i, j].value:  # Solo imprimir si xijk es 1 (viaje hecho)
+                            print(f"x[{k},{i},{j}] = {model.x[k, i, j].value}")
+            # Imprimir las variables u (carga de los vehículos)
+            print("\nCarga de los vehículos (uk):")
+            for k in range(instance.V):
+                print(f"u[{k}] = {model.u[k].value}")
 
-#Conservascion flujo
-def constraint_35_eq(model, h, k):
-    depot = DEPOTS[k]
-    ret = RETURNS[k]
-    
-    if h == depot or h == ret:
-        return pyo.Constraint.Skip
-    
-    inpt = (model.x[k, i, h] for i in range(N) if i != h)
-    outpt = (model.x[k, h, j] for j in range(N) if j != h)
-    return sum(inpt) - sum(outpt) == 0
+            print("\nTiempos de servicio (ski):")
+            for k in range(instance.V):
+                for i in range(instance.N):
+                    if model.s[k,i].value:
+                        print(f"s[{k},{i}] = {model.s[k,i].value}")
 
-#Variables para los vehiculos
-def constraint_min_vehicle(model):
-    return sum(model.u[k] for k in range(V)) >= 1
+            #Imprimir el valor objetivo (costo total)
+            print("\nValor objetivo (costo total):", model.obj())
+        # else:
+            # for k in range(V):
+            #     for i in range(N):
+            #         var = model.s[k,i]
+            #         print(f"s[{k},{i}] : bounds={var.lb, var.ub}, value={pyo.value(var, exception=False)}")
+            # for idx in model.time_windows:
+            #     print(f"time_windows[{idx}] : {model.time_windows[idx].expr}")
 
-#Restriccion de capacidad
-def constraint_33_ub(model, k):
-    return sum(model.x[k, i, j] * demands[i] for i in C for j in range(N) if i != j) <= Q[k]
-
-#Restriccion de tiempo 
-def constraint_37_ub(model, k, i, j):
-    if i == j or j == RETURNS[k]:
-        return pyo.Constraint.Skip
-    Mij = li[i] + tij[i][j] - ei[j]  # Big-M
-    return model.s[k,i] + tij[i][j] - Mij * (1 - model.x[k,i,j]) <= model.s[k,j]
-
-def s_bounds(model, k, i):
-    return (ei[i], li[i])  # ventana de tiempo para el nodo i
-
-# Para cada vehiculo k: si usa algun arco (i,j) entonces u[k] = 1 (Big-M)
-def aux1(model, k):
-    return sum(model.x[k, i, j] for i in range(N) for j in range(N) if i != j) <= N * model.u[k]
-
-# ====== Main Function ======
-def milp2a2_solver():
-    # Crear el modelo de optimización
-    model = pyo.ConcreteModel()
-
-    # Definir las variables
-    model.x = pyo.Var(range(V), range(N), range(N), domain=pyo.Binary)  # xijk binaria
-    model.u = pyo.Var(range(V), domain=pyo.Binary)  # uk binaria
-    model.s = pyo.Var(range(V), range(N), domain=pyo.Reals, bounds=s_bounds)  # sik
-
-    # Inicializar x[k, i, j] = 0 para las combinaciones donde i == j
-    for k in range(V):
-        for i in range(N):
-            model.x[k, i, i].fix(0)  # Fijar x[k, i, j] a 0 cuando i == j
-
-    # Función objetivo: Minimizar los costos de los viajes
-    model.obj = pyo.Objective(rule=objective_rule, sense=pyo.minimize)
-    
-    model.visit_once = pyo.Constraint(C, rule=constraint_32_eq)
-    model.from_depot = pyo.Constraint(range(V), rule=constraint_34_eq)
-    model.back2_return = pyo.Constraint(range(V), rule=constraint_36_eq)
-    model.flow = pyo.Constraint(range(N), range(V), rule=constraint_35_eq)
-    model.uk = pyo.Constraint(rule=constraint_min_vehicle)
-    model.capacity = pyo.Constraint(range(V), rule=constraint_33_ub)
-    model.time_windows = pyo.Constraint(range(V), range(N), range(N), rule=constraint_37_ub)
-    
-    model.aux_link_x_u = pyo.Constraint(range(V), rule=aux1)
-    
-    # Resolver el modelo
-    solver = pyo.SolverFactory('glpk')
-    results = solver.solve(model, tee=False)
-    
-    # Verificar el estado de la solución
-    print("Estado de la solución:", results.solver.status)
-    print("Condición de terminación:", results.solver.termination_condition)
-
-    # Verificar el estado de la solución
-    # if results.solver.status == pyo.SolverStatus.ok:
-    #     print("La solución fue encontrada con éxito.")
-    # elif results.solver.status == pyo.SolverStatus.error:
-    #     print("Hubo un error al resolver el problema.")
-    # else:
-    #     print("Estado del solver:", results.solver.status)
-
-    if results.solver.termination_condition != "infeasible":
-        # Imprimir las variables de decisión (xijk)
-        print("\nVariables de decisión (xkij):")
-        for k in range(V):
-            for i in range(N):
-                for j in range(N):
-                    if model.x[k, i, j].value:  # Solo imprimir si xijk es 1 (viaje hecho)
-                        print(f"x[{k},{i},{j}] = {model.x[k, i, j].value}")
-        # Imprimir las variables u (carga de los vehículos)
-        print("\nCarga de los vehículos (uk):")
-        for k in range(V):
-            print(f"u[{k}] = {model.u[k].value}")
-
-        print("\nTiempos de servicio (ski):")
-        for k in range(V):
-            for i in range(N):
-                if model.s[k,i].value:
-                    print(f"s[{k},{i}] = {model.s[k,i].value}")
-
-        #Imprimir el valor objetivo (costo total)
-        print("\nValor objetivo (costo total):", model.obj())
-    # else:
-        # for k in range(V):
-        #     for i in range(N):
-        #         var = model.s[k,i]
-        #         print(f"s[{k},{i}] : bounds={var.lb, var.ub}, value={pyo.value(var, exception=False)}")
-        # for idx in model.time_windows:
-        #     print(f"time_windows[{idx}] : {model.time_windows[idx].expr}")
-
-milp2a2_solver()
+"""
