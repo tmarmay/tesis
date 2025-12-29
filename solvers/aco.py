@@ -176,7 +176,7 @@ class ACOSolver(BaseSolver):
             for c in instance.C:
                 d = asign_mejor[c]
                 tau_assign[d][c] += self.PHE / costo_mejor
-        return mejor_costo_global, mejor_rutas_global, [] #FALTA ESTO!
+        return mejor_rutas_global, mejor_costo_global, [] #FALTA ESTO!
     
     def solve(self, instance: ProblemInstance):
         rutas, costo, no_visitados = self.aco(instance)
