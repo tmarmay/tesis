@@ -55,7 +55,7 @@ class ACOSolver(BaseSolver):
             assign[c] = d
         return assign
 
-    def greedy_route_for_depot(self, d, clientes_d, tij, ei, li, RETURNS):
+    def greedy_route_for_depot(self, d, clientes_d, tij, ei, li, RETURNS) -> tuple:
         """
         Construcción greedy de la ruta para el depósito d
         clientes_d: lista de clientes asignados a este depósito
@@ -65,7 +65,7 @@ class ACOSolver(BaseSolver):
         ruta = [d]
         current = d
         current_time = 0
-        
+        unsolved_clients = []
         pendientes = clientes_d.copy()
 
         while pendientes:
@@ -81,7 +81,8 @@ class ACOSolver(BaseSolver):
 
                 # ventana de tiempo no factible
                 if arrival > li[j]:
-                    continue  # no factible
+                    unsolved_clients.append(j)
+                    continue
 
                 # esperar si llegamos antes
                 start_service = max(arrival, ei[j])
@@ -110,7 +111,7 @@ class ACOSolver(BaseSolver):
 
         # retornar al depósito
         ruta.append(RETURNS[d])
-        return ruta
+        return ruta, unsolved_clients
 
     def aco(self, instance: ProblemInstance):
         # =============================
@@ -140,11 +141,15 @@ class ACOSolver(BaseSolver):
 
                 for idx_d, d in enumerate(instance.DEPOTS):
                     clientes_d = [c for c, dep_idx in assign.items() if dep_idx == idx_d]
-
                     if not clientes_d:
                         continue
 
-                    ruta_d = self.greedy_route_for_depot(d, clientes_d, instance.tij, instance.ei, instance.li, instance.RETURNS) # No devuelve indices, devuelve numero nodos
+                    ruta_d, unsolved_clientes = self.greedy_route_for_depot(d, clientes_d, instance.tij, instance.ei, instance.li, instance.RETURNS) # No devuelve indices, devuelve numero nodos
+                    if len(unsolved_clientes) > 0:
+                        return mejor_rutas_global, mejor_costo_global, list(set(unsolved_clientes))
+                        #ESTE ES OTRO PROBLEMA QUE NO ARREGLO AHORA
+                        #mover el nodo problematico a otro depot
+                        #si es el ultimo nodo marcarlo como unsolved
                     rutas[d] = ruta_d
 
                     # calcular costo de la ruta

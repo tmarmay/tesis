@@ -108,6 +108,8 @@ class MILPSolver(BaseSolver):
         # ===============================
         # EXTRAER SOLUCIÓN
         # ===============================
+        if results.solver.termination_condition != pyo.TerminationCondition.optimal:
+            return {}, float("inf"), list(instance.C)
 
         rutas = {}
         visitados = set()

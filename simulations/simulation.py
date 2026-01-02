@@ -38,7 +38,8 @@ class Simulation:
                     "cost": solution.total_cost,
                     "feasible": solution.feasible,
                     "runtime": runtime,
-                    "routes": solution.routes
+                    "routes": solution.routes,
+                    "not_visited": solution.unserved_customers
                 })
 
     def get_results(self):
