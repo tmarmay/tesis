@@ -14,13 +14,17 @@ import numpy as np
 class ACOSolver(BaseSolver):
 
     def __init__(self):
-        self.NUM_ANTS = 10
-        self.NUM_ITER = 100
+        self.NUM_ANTS = 100
+        self.NUM_ITER = 1000
         self.ALPHA = 1.0       # influencia de la feromona
         self.BETA = 5.0        # influencia de la heurística (1/distancia)
         self.RHO = 0.5         # tasa de evaporación
         self.PHE = 100           # cantidad de feromona depositada
-    
+        self.LAMBDA = 5
+        self.penalty = 10
+        self.TAU_MAX = 10
+        self.TAU_MIN = 1e-4
+
     def phase_one(self, instance: ProblemInstance) -> dict:
         # =============================
         # Inicialización de feromonas
@@ -28,6 +32,7 @@ class ACOSolver(BaseSolver):
         tau_assign = np.ones((instance.V, instance.CUSTOMERS)) # Feromonas a los clientes
         best_route = None
         best_cost = float("inf") #Tiene que evaluar igual que objective_rule de milp 
+        tau_assign = np.clip(tau_assign, self.TAU_MIN, self.TAU_MAX)
         return tau_assign, best_route, best_cost
 
     def select_depot_for_client(self, c, tau_assign, cost_matrix, depot_nodes):
@@ -75,7 +80,6 @@ class ACOSolver(BaseSolver):
             mejor_start_service = None
 
             for j in pendientes:
-
                 travel = tij[current][j]
                 arrival = current_time + travel
 
@@ -132,6 +136,8 @@ class ACOSolver(BaseSolver):
             solutions = []
 
             for k in range(self.NUM_ANTS):
+                unsolved_total = []
+
                 #FASE 1: Asignacion de customers a depots
                 assign = self.assignment_phase(instance.C, instance.DEPOTS, tau_assign, instance.cost_matrix)
                 
@@ -145,11 +151,7 @@ class ACOSolver(BaseSolver):
                         continue
 
                     ruta_d, unsolved_clientes = self.greedy_route_for_depot(d, clientes_d, instance.tij, instance.ei, instance.li, instance.RETURNS) # No devuelve indices, devuelve numero nodos
-                    if len(unsolved_clientes) > 0:
-                        return mejor_rutas_global, mejor_costo_global, list(set(unsolved_clientes))
-                        #ESTE ES OTRO PROBLEMA QUE NO ARREGLO AHORA
-                        #mover el nodo problematico a otro depot
-                        #si es el ultimo nodo marcarlo como unsolved
+                    unsolved_total.extend(unsolved_clientes)
                     rutas[d] = ruta_d
 
                     # calcular costo de la ruta
@@ -161,45 +163,39 @@ class ACOSolver(BaseSolver):
                     costo_total += instance.F[idx_d]  # costo fijo por vehículo
 
                 # Guardar la solución de esta hormiga
-                solutions.append((assign, rutas, costo_total))
+                solutions.append((assign, rutas, costo_total, unsolved_total))
 
             # Selección de la mejor hormiga de la iteración
-            asign_mejor, rutas_mejor, costo_mejor = min(solutions, key=lambda x: x[2])
+            asign_mejor, rutas_mejor, costo_mejor, unsolved_clientes = min(
+                solutions,
+                key=lambda x: (len(x[3]), x[2])   # primero factibilidad, luego costo
+            )
 
             # Actualizar el mejor global si es necesario
-            if costo_mejor < mejor_costo_global:
+            if costo_mejor < mejor_costo_global and len(unsolved_clientes) == 0:
                 mejor_costo_global = costo_mejor
                 mejor_asignacion_global = asign_mejor
                 mejor_rutas_global = rutas_mejor
 
             
             # FASE 3: Actualización de feromonas
-            # evaporación
+            # Evaporación
             tau_assign *= (1 - self.RHO)
 
-            # refuerzo de la mejor hormiga
+            # Definir delta según factibilidad
+            if len(unsolved_clientes) == 0:
+                delta = self.PHE / costo_mejor
+            else:
+                delta = self.PHE / (costo_mejor + self.LAMBDA * len(unsolved_clientes))
+
+            # Refuerzo SOLO de la mejor hormiga
             for c in instance.C:
                 d = asign_mejor[c]
-                tau_assign[d][c] += self.PHE / costo_mejor
-        return mejor_rutas_global, mejor_costo_global, [] #FALTA ESTO!
-    
+                tau_assign[d][c] += delta
+
+            print(assign)
+            return mejor_rutas_global, mejor_costo_global, unsolved_clientes
+                
     def solve(self, instance: ProblemInstance):
         rutas, costo, no_visitados = self.aco(instance)
         return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
-
-
-
-#NO TENDRIA QUE ESTAR PERO LO DEJO POR LAS DUDAS
-# print("\n========================")
-# print("   MEJOR SOLUCIÓN ACO   ")
-# print("========================")
-
-# print(f"Costo total: {mejor_costo_global:.2f}\n")
-
-# print("Rutas por depósito:")
-# for d in DEPOTS:
-#     if d in mejor_rutas_global:
-#         ruta = mejor_rutas_global[d]
-#         print(f"  Depósito {d}: {ruta}")
-#     else:
-#         print(f"  Depósito {d}: (vehículo no usado)")
