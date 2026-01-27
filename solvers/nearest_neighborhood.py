@@ -9,28 +9,76 @@ class NearestNeighborSolver(BaseSolver):
     def __init__(self):
         pass
 
-    def phase_one(self, instance: ProblemInstance) -> dict:
+    # def phase_one(self, instance: ProblemInstance) -> dict:
+    #     """
+    #     FASE 1: Asignación simple
+    #     """
+    #     assign = {}
+    #     for c in instance.C:
+    #         best_v = None
+    #         best_cost = float("inf")
+
+    #         for v in range(instance.V):
+    #             d_node = instance.DEPOTS[v]
+    #             if instance.cost_matrix[d_node][c] < best_cost:
+    #                 best_cost = instance.cost_matrix[d_node][c]
+    #                 best_v = v
+
+    #         assign[c] = best_v
+    #     return assign
+
+    def phase_one(self, instance):
         """
-        FASE 1: Asignación simple
+        Asignación cliente → vehículo respetando ventanas de tiempo.
+        NO construye rutas finales.
+        Asignacion factible anticipada
         """
+
+        V = instance.V
+        C = instance.C
+
+        # ordenar clientes por urgencia temporal
+        clientes = sorted(
+            C,
+            key=lambda c: (instance.ei[c] + instance.li[c]) / 2
+        )
+
+        # estado por vehículo
+        current_node = {v: v for v in range(V)}
+        current_time = {v: 0 for v in range(V)}
+
         assign = {}
-        for c in instance.C:
+        unsolved_clients = []
+
+        for c in clientes:
+
             best_v = None
-            best_cost = float("inf")
+            best_time = float("inf")
 
-            for v in range(instance.V):
-                d_node = instance.DEPOTS[v]
-                if instance.cost_matrix[d_node][c] < best_cost:
-                    best_cost = instance.cost_matrix[d_node][c]
-                    best_v = v
+            for v in range(V):
+                u = current_node[v]
 
-            assign[c] = best_v
-        return assign
+                travel = instance.tij[u][c]
+                arrival = current_time[v] + travel
+                start_service = max(arrival, instance.ei[c])
+
+                if start_service <= instance.li[c]:
+                    if start_service < best_time:
+                        best_time = start_service
+                        best_v = v
+
+            if best_v is None:
+                unsolved_clients.append(c)
+            else:
+                assign[c] = best_v
+                current_node[best_v] = c
+                current_time[best_v] = best_time + instance.service_time[c]
+        return assign, unsolved_clients
 
     def phase_two(self, instance: ProblemInstance, assign: dict) -> tuple:
         rutas = {}
         costo_total = 0
-
+        
         for v in range(instance.V):
             depot = instance.DEPOTS[v]
             ret = instance.RETURNS[depot]
@@ -71,7 +119,7 @@ class NearestNeighborSolver(BaseSolver):
 
             # cerrar ruta en el return
             ruta.append(ret)
-            rutas[v] = ruta
+            rutas[instance.DEPOTS[v]] = ruta
 
             # -----------------------------
             # costo de la ruta
@@ -85,26 +133,9 @@ class NearestNeighborSolver(BaseSolver):
         return rutas, costo_total, []
     
     def solve(self, instance):
-        assign = self.phase_one(instance)
+        assign, unsolved_clients = self.phase_one(instance)
+        if unsolved_clients:
+            return Solution(feasible=False, total_cost=float("inf"), routes={}, unserved_customers=unsolved_clients)
+        
         rutas, costo, no_visitados = self.phase_two(instance, assign)
         return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
-
-    # def print(self):
-    ## no deberia ir pero lo dejo por ahora
-    #     print("\n========================")
-    #     print("  SOLUCIÓN BASELINE NN  ")
-    #     print("========================")
-
-    #     if self.rutas is None:
-    #         print("⚠️ Solución INFACTIBLE")
-    #         print("Clientes no atendidos:", self.no_visitados)
-    #     else:
-    #         print(f"Costo total: {self.costo_total:.2f}\n")
-
-    #         print("Rutas por depósito:")
-    #         for v in range(V):
-    #             depot_node = DEPOTS[v]
-    #             if v in self.rutas:
-    #                 print(f"  Depósito {depot_node} (vehículo {v}): {self.rutas[v]}")
-    #             else:
-    #                 print(f"  Depósito {depot_node} (vehículo {v}): (vehículo no usado)")
