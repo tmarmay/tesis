@@ -8,8 +8,6 @@ from models.problem_instance import ProblemInstance
 from models.solutions import Solution
 
 import pyomo.environ as pyo
-from pyomo.util.infeasible import log_infeasible_constraints
-import logging
 
 class MILPSolver(BaseSolver):
 
@@ -28,12 +26,12 @@ class MILPSolver(BaseSolver):
     #Cada nodo debe ser visitado exactamente una vez
     def constraint_32_eq(self, model, i):
         # i es el cliente
-            return sum(model.x[k, i, j] for k in range(self.insta.V) for j in range(self.insta.N) if i != j) == 1
+        return sum(model.x[k, i, j] for k in range(self.insta.V) for j in range(self.insta.N) if i != j) == 1
 
     #Tiene que salir del depot
     def constraint_34_eq(self, model, k):
         depot = self.insta.DEPOTS[k]
-        return sum(model.x[k, depot, j] for j in range(self.insta.N) if j != depot) == model.u[k]
+        return sum(model.x[k, depot, j] for j in range(self.insta.CUSTOMERS) if j != depot) == model.u[k]
 
     #Tiene que volver al depot
     def constraint_36_eq(self, model, k):
@@ -111,6 +109,8 @@ class MILPSolver(BaseSolver):
         # EXTRAER SOLUCIÓN
         # ===============================
         if results.solver.termination_condition != pyo.TerminationCondition.optimal:
+            from pyomo.util.infeasible import log_infeasible_constraints
+            import logging
             logging.basicConfig(level=logging.INFO)
             print(log_infeasible_constraints(
                 model,
@@ -119,36 +119,64 @@ class MILPSolver(BaseSolver):
             ))
             return {}, float("inf"), list(instance.C)
 
-        rutas = {}
-        visitados = set()
         costo_total = pyo.value(model.obj)
 
+        rutas = {}
+        visitados = set()
+
         for k in range(instance.V):
+
             if pyo.value(model.u[k]) < 0.5:
                 continue  # vehículo no usado
 
             depot = instance.DEPOTS[k]
             ret = instance.RETURNS_milp[k]
 
+            # ===============================
+            # Arcos activos del vehículo k
+            # ===============================
+            arcos_k = [
+                (i, j)
+                for i in range(instance.N)
+                for j in range(instance.N)
+                if pyo.value(model.x[k, i, j]) > 0.5
+            ]
+
+            if not arcos_k:
+                # vehículo marcado como usado pero sin ruta → error del modelo
+                continue
+
+            # sucesor único por nodo
+            succ = {i: j for i, j in arcos_k}
+
+            # ===============================
+            # Reconstrucción de la ruta
+            # ===============================
             ruta = [depot]
             actual = depot
+            usados = {depot}
 
             while actual != ret:
-                encontrado = False
-                for j in range(instance.N):
-                    if j != actual and pyo.value(model.x[k, actual, j]) > 0.5:
-                        ruta.append(j)
-                        actual = j
-                        encontrado = True
-                        if j in instance.C:
-                            visitados.add(j)
-                        break
+                if actual not in succ:
+                    raise RuntimeError(
+                        f"Ruta rota: no hay sucesor desde {actual} (vehículo {k})"
+                    )
 
-                if not encontrado:
-                    # ruta rota (no debería pasar en solución factible)
-                    break
+                siguiente = succ[actual]
+
+                if siguiente in usados:
+                    raise RuntimeError(
+                        f"Ciclo detectado en vehículo {k}: {siguiente}"
+                    )
+
+                ruta.append(siguiente)
+                usados.add(siguiente)
+                actual = siguiente
 
             rutas[depot] = ruta
+
+            # clientes visitados
+            visitados |= set(n for n in ruta if n in instance.C)
 
         # ===============================
         # CLIENTES NO ATENDIDOS
@@ -156,6 +184,7 @@ class MILPSolver(BaseSolver):
         no_visitados = [c for c in instance.C if c not in visitados]
 
         return rutas, costo_total, no_visitados
+
     
     def solve(self, instance: ProblemInstance):
         rutas, costo, no_visitados = self.milp2a2_solver(instance)
