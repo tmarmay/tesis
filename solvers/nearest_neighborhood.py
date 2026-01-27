@@ -36,7 +36,7 @@ class NearestNeighborSolver(BaseSolver):
 
         V = instance.V
         C = instance.C
-
+        
         # ordenar clientes por urgencia temporal
         clientes = sorted(
             C,
@@ -44,7 +44,7 @@ class NearestNeighborSolver(BaseSolver):
         )
 
         # estado por vehículo
-        current_node = {v: v for v in range(V)}
+        current_node = {instance.DEPOTS[v]: instance.DEPOTS[v] for v in range(V)}
         current_time = {v: 0 for v in range(V)}
 
         assign = {}
@@ -56,7 +56,7 @@ class NearestNeighborSolver(BaseSolver):
             best_time = float("inf")
 
             for v in range(V):
-                u = current_node[v]
+                u = current_node[instance.DEPOTS[v]]
 
                 travel = instance.tij[u][c]
                 arrival = current_time[v] + travel
