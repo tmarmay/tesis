@@ -22,6 +22,7 @@ class ProblemInstance:
         self.Q = [2 for _ in range(V)] # capacidad máxima del vehículo.
         self.demands = [1 for _ in range(CUSTOMERS)] #Demenda de cada customer i
 
+        self.service_time = [0 for _ in range(CUSTOMERS)]
 
         self.N = CUSTOMERS + 2*V
         self.C = [i for i in range(CUSTOMERS)] #CUSTOMERS
