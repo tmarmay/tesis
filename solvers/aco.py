@@ -193,7 +193,6 @@ class ACOSolver(BaseSolver):
                 d = asign_mejor[c]
                 tau_assign[d][c] += delta
 
-            print(assign)
             return mejor_rutas_global, mejor_costo_global, unsolved_clientes
                 
     def solve(self, instance: ProblemInstance):
