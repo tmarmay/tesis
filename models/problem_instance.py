@@ -19,7 +19,7 @@ class ProblemInstance:
         self.li = li
         self.F = F
 
-        self.Q = [2 for _ in range(V)] # capacidad máxima del vehículo.
+        self.Q = [CUSTOMERS for _ in range(V)] # capacidad máxima del vehículo.
         self.demands = [1 for _ in range(CUSTOMERS)] #Demenda de cada customer i
 
         self.service_time = [0 for _ in range(CUSTOMERS)]
@@ -33,3 +33,4 @@ class ProblemInstance:
             self.DEPOTS[v]: self.C[-1] + 1 + V + v
             for v in range(V)
         }
+        
