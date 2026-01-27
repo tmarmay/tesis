@@ -8,6 +8,8 @@ from models.problem_instance import ProblemInstance
 from models.solutions import Solution
 
 import pyomo.environ as pyo
+from pyomo.util.infeasible import log_infeasible_constraints
+import logging
 
 class MILPSolver(BaseSolver):
 
@@ -109,6 +111,12 @@ class MILPSolver(BaseSolver):
         # EXTRAER SOLUCIÓN
         # ===============================
         if results.solver.termination_condition != pyo.TerminationCondition.optimal:
+            logging.basicConfig(level=logging.INFO)
+            print(log_infeasible_constraints(
+                model,
+                log_expression=True,
+                log_variables=True
+            ))
             return {}, float("inf"), list(instance.C)
 
         rutas = {}
