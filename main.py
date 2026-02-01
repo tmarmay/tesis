@@ -40,5 +40,25 @@ from simulations.simulation import Simulation
 #     print(f"  Rutas: {r['routes']}")
 #     print()
 
-from tests.test_time_windows import *
-test_infeacible()
+
+
+import argparse
+import subprocess
+import sys
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="VRP Solver Framework")
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Run test suite with pytest"
+    )
+    return parser.parse_args()
+
+args = parse_args()
+if args.test:
+    print("Running test suite with pytest...\n")
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "-s"],
+    )
+    sys.exit(result.returncode)
