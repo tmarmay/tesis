@@ -99,9 +99,10 @@ class NearestNeighborSolver(BaseSolver):
                     travel_time = instance.tij[nodo_actual][c]
                     llegada = tiempo_actual + travel_time
                     inicio_servicio = max(llegada, instance.ei[c])
-
-                    if inicio_servicio <= instance.li[c]:
+                    
+                    if inicio_servicio <= instance.li[c] and instance.Q[v] > 0:
                         candidatos.append((c, travel_time, inicio_servicio))
+                        instance.Q[v] -= 1
 
                 if not candidatos:
                     # No se pueden atender todos los clientes asignados
