@@ -60,7 +60,7 @@ class ACOSolver(BaseSolver):
             assign[c] = d
         return assign
 
-    def greedy_route_for_depot(self, d, clientes_d, tij, ei, li, RETURNS) -> tuple:
+    def greedy_route_for_depot(self, idx_d, d, clientes_d, tij, ei, li, RETURNS, CAPACITY) -> tuple:
         """
         Construcción greedy de la ruta para el depósito d
         clientes_d: lista de clientes asignados a este depósito
@@ -84,7 +84,7 @@ class ACOSolver(BaseSolver):
                 arrival = current_time + travel
 
                 # ventana de tiempo no factible
-                if arrival > li[j]:
+                if arrival > li[j] or CAPACITY[idx_d] == 0:
                     unsolved_clients.append(j)
                     continue
 
@@ -108,6 +108,7 @@ class ACOSolver(BaseSolver):
             # agregar cliente a la ruta
             ruta.append(mejor_j)
             pendientes.remove(mejor_j)
+            CAPACITY[idx_d] -= 1
 
             # actualizar estado
             current = mejor_j
@@ -150,7 +151,10 @@ class ACOSolver(BaseSolver):
                     if not clientes_d:
                         continue
 
-                    ruta_d, unsolved_clientes = self.greedy_route_for_depot(d, clientes_d, instance.tij, instance.ei, instance.li, instance.RETURNS) # No devuelve indices, devuelve numero nodos
+                    ruta_d, unsolved_clientes = self.greedy_route_for_depot(idx_d, d, clientes_d, instance.tij, 
+                                                                            instance.ei, instance.li, 
+                                                                            instance.RETURNS,
+                                                                            instance.Q) # No devuelve indices, devuelve numero nodos
                     unsolved_total.extend(unsolved_clientes)
                     rutas[d] = ruta_d
 
