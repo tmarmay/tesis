@@ -32,5 +32,5 @@ cheaper_route = ProblemInstance(
     li=[30, 30] + [100 for _ in range(V + RETURNS)],
     F=[5 for _ in range(V)],
     demands=[],
-    Q=[]
+    Q=[CUSTOMERS for _ in range(V)]
 )

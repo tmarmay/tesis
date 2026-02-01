@@ -30,5 +30,5 @@ infeacible = ProblemInstance(
     li=[1, 0, 12, 100, 100] + [100 for _ in range(CUSTOMERS)],
     F=[5 for _ in range(1)],
     demands=[],
-    Q=[]
+    Q=[CUSTOMERS for _ in range(1)]
 )

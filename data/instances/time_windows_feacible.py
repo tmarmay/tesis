@@ -41,5 +41,5 @@ feacible = ProblemInstance(
     li=[5, 5, 11] + [100 for _ in range(4)],
     F=[5 for _ in range(2)],
     demands=[],
-    Q=[]
+    Q=[CUSTOMERS for _ in range(2)]
 )

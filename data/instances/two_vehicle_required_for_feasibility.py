@@ -36,5 +36,5 @@ two_vehicle_required = ProblemInstance(
     li=[5, 5, 100, 100, 54, 14],
     F=[5 for _ in range(V)],
     demands=[],
-    Q=[]
+    Q=[CUSTOMERS for _ in range(V)]
 )

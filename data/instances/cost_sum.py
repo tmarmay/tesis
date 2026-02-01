@@ -36,5 +36,5 @@ cost_sum = ProblemInstance(
     li=[5, 10, 15, 20] + [100 for _ in range(V + RETURNS)],
     F=[5 for _ in range(V)],
     demands=[],
-    Q=[]
+    Q=[CUSTOMERS for _ in range(V)]
 )
