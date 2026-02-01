@@ -177,10 +177,17 @@ Solver: MILP
 ```bash
 pip install -r req.txt
 sudo apt-get install glpk-utils
+sudo apt install python3-pytest
 ```
 
 
 ```bash
 python3 main.py
+
+# Run the full test suite using pytest
+python -m pytest
+
+# Run all tests via the main entry point
+python3 main.py --test
 ```
 
