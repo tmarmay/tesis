@@ -117,6 +117,12 @@ class NearestNeighborSolver(BaseSolver):
                 nodo_actual = c_next
                 no_visitados.remove(c_next)
 
+            travel_back = instance.tij[nodo_actual][ret]
+            llegada_return = tiempo_actual + travel_back
+
+            if llegada_return > instance.li[ret]:
+                return None, float("inf"), no_visitados
+
             # cerrar ruta en el return
             ruta.append(ret)
             rutas[instance.DEPOTS[v]] = ruta
