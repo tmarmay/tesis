@@ -20,6 +20,7 @@ class ProblemInstance:
         self.F = F
 
         self.Q = Q # capacidad máxima del vehículo.
+        # Para que funcione con numeros mayores a 1 hay que hacer una modificacion
         self.demands = [1 for _ in range(CUSTOMERS)] #Demenda de cada customer i
 
         self.service_time = [0 for _ in range(CUSTOMERS)]
