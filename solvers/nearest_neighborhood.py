@@ -36,7 +36,8 @@ class NearestNeighborSolver(BaseSolver):
 
         V = instance.V
         C = instance.C
-        
+        Q = instance.Q.copy()
+
         # ordenar clientes por urgencia temporal
         clientes = sorted(
             C,
@@ -56,6 +57,8 @@ class NearestNeighborSolver(BaseSolver):
             best_time = float("inf")
 
             for v in range(V):
+                if Q[v] == 0:
+                    break
                 u = current_node[instance.DEPOTS[v]]
 
                 travel = instance.tij[u][c]
@@ -73,6 +76,8 @@ class NearestNeighborSolver(BaseSolver):
                 assign[c] = best_v
                 current_node[best_v] = c
                 current_time[best_v] = best_time + instance.service_time[c]
+                Q[v] -= 1
+                
         return assign, unsolved_clients
 
     def phase_two(self, instance: ProblemInstance, assign: dict) -> tuple:
@@ -94,15 +99,14 @@ class NearestNeighborSolver(BaseSolver):
 
             while no_visitados:
                 candidatos = []
-
+                                
                 for c in no_visitados:
                     travel_time = instance.tij[nodo_actual][c]
                     llegada = tiempo_actual + travel_time
                     inicio_servicio = max(llegada, instance.ei[c])
                     
-                    if inicio_servicio <= instance.li[c] and instance.Q[v] > 0:
+                    if inicio_servicio <= instance.li[c]:
                         candidatos.append((c, travel_time, inicio_servicio))
-                        instance.Q[v] -= 1
 
                 if not candidatos:
                     # No se pueden atender todos los clientes asignados

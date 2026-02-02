@@ -46,19 +46,57 @@ import argparse
 import subprocess
 import sys
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="VRP Solver Framework")
+
+def run_pytest(target: str | None):
+    """
+    Ejecuta pytest.
+    - Si target es None -> corre todos los tests
+    - Si target existe -> se lo pasa directo a pytest
+    """
+    cmd = [sys.executable, "-m", "pytest"]
+
+    if target:
+        cmd.append(target)
+
+    subprocess.run(cmd, check=False)
+    sys.exit(0)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="VRP Simulator & Test Runner"
+    )
+
     parser.add_argument(
         "--test",
-        action="store_true",
-        help="Run test suite with pytest"
+        nargs="?",
+        const="",
+        metavar="PYTEST_TARGET",
+        help=(
+            "Run pytest. Optional target:\n"
+            "  --test                      (all tests)\n"
+            "  --test test_time_windows    (single file)\n"
+            "  --test test_file::test_name (single test)"
+        ),
     )
-    return parser.parse_args()
 
-args = parse_args()
-if args.test:
-    print("Running test suite with pytest...\n")
-    result = subprocess.run(
-        [sys.executable, "-m", "pytest", "-s"],
-    )
-    sys.exit(result.returncode)
+    args = parser.parse_args()
+
+    # ------------------------
+    # TEST MODE
+    # ------------------------
+    if args.test is not None:
+        target = args.test if args.test != "" else None
+        run_pytest(target)
+
+    # ------------------------
+    # NORMAL EXECUTION
+    # ------------------------
+    # Acá va tu código normal:
+    # simulaciones, solvers, etc.
+    # print("Running normal simulation...")
+    # ...
+
+
+if __name__ == "__main__":
+    main()

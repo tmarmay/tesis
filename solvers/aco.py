@@ -19,7 +19,8 @@ class ACOSolver(BaseSolver):
         self.ALPHA = 1.0       # influencia de la feromona
         self.BETA = 5.0        # influencia de la heurística (1/distancia)
         self.RHO = 0.5         # tasa de evaporación
-        self.PHE = 100           # cantidad de feromona depositada
+        self.PHE = 100         # cantidad de feromona depositada
+        self.GAMMA = 2        # penaliza vehículos con mucha capacidad
         self.LAMBDA = 5
         self.penalty = 10
         self.TAU_MAX = 10
@@ -35,13 +36,12 @@ class ACOSolver(BaseSolver):
         tau_assign = np.clip(tau_assign, self.TAU_MIN, self.TAU_MAX)
         return tau_assign, best_route, best_cost
 
-    def select_depot_for_client(self, c, tau_assign, cost_matrix, depot_nodes):
+    def select_depot_for_client(self, c, tau_assign, cost_matrix, depot_nodes, Q_initial, Q_current):
         numeradores = []
         for d_idx, d_node in enumerate(depot_nodes):
 
             tau_dc = tau_assign[d_idx][c] ** self.ALPHA
             eta_dc = (1 / cost_matrix[d_node][c]) ** self.BETA
-
             numeradores.append(tau_dc * eta_dc)
 
         total = sum(numeradores)
@@ -49,18 +49,17 @@ class ACOSolver(BaseSolver):
             return random.choice(range(len(depot_nodes)))
 
         probs = [n / total for n in numeradores]
-
         # devolvés el índice del depósito
         return random.choices(range(len(depot_nodes)), weights=probs, k=1)[0]
 
-    def assignment_phase(self, C, DEPOTS, tau_assign, cost_matrix) -> dict:
+    def assignment_phase(self, C, DEPOTS, tau_assign, cost_matrix, Q_initial, Q_current) -> dict:
         assign = {}
         for c in C:
-            d = self.select_depot_for_client(c, tau_assign, cost_matrix, DEPOTS)
+            d = self.select_depot_for_client(c, tau_assign, cost_matrix, DEPOTS, Q_initial, Q_current)
             assign[c] = d
         return assign
 
-    def greedy_route_for_depot(self, idx_d, d, clientes_d, tij, ei, li, RETURNS, CAPACITY) -> tuple:
+    def greedy_route_for_depot(self, idx_d, d, clientes_d, tij, ei, li, RETURNS, Q) -> tuple:
         """
         Construcción greedy de la ruta para el depósito d
         clientes_d: lista de clientes asignados a este depósito
@@ -72,19 +71,23 @@ class ACOSolver(BaseSolver):
         current_time = 0
         unsolved_clients = []
         pendientes = clientes_d.copy()
-
+        
         while pendientes:
             mejor_j = None
             mejor_incremento = float("inf")
             mejor_arrival = None
             mejor_start_service = None
 
+            if Q[idx_d] <= 0:
+                unsolved_clients.extend(pendientes)
+                break
+
             for j in pendientes:
                 travel = tij[current][j]
                 arrival = current_time + travel
 
                 # ventana de tiempo no factible
-                if arrival > li[j] or CAPACITY[idx_d] == 0:
+                if arrival > li[j]:
                     unsolved_clients.append(j)
                     continue
 
@@ -108,7 +111,7 @@ class ACOSolver(BaseSolver):
             # agregar cliente a la ruta
             ruta.append(mejor_j)
             pendientes.remove(mejor_j)
-            CAPACITY[idx_d] -= 1
+            Q[idx_d] -= 1
 
             # actualizar estado
             current = mejor_j
@@ -128,6 +131,7 @@ class ACOSolver(BaseSolver):
         #Un vehículo v = una subruta dentro de la solución de la hormiga.
 
         # =============================
+        
         tau_assign, best_route, best_cost = self.phase_one(instance)
         mejor_costo_global = float("inf")
         mejor_asignacion_global = None
@@ -137,10 +141,12 @@ class ACOSolver(BaseSolver):
             solutions = []
 
             for k in range(self.NUM_ANTS):
+                Q = instance.Q.copy()
+                DEPOTS = instance.DEPOTS.copy()
                 unsolved_total = []
 
                 #FASE 1: Asignacion de customers a depots
-                assign = self.assignment_phase(instance.C, instance.DEPOTS, tau_assign, instance.cost_matrix)
+                assign = self.assignment_phase(instance.C, DEPOTS, tau_assign, instance.cost_matrix, instance.Q, Q)
                 
                 #FASE 2: Greedy para constriccion de rutas respetando restricciones
                 rutas = {}
@@ -154,7 +160,7 @@ class ACOSolver(BaseSolver):
                     ruta_d, unsolved_clientes = self.greedy_route_for_depot(idx_d, d, clientes_d, instance.tij, 
                                                                             instance.ei, instance.li, 
                                                                             instance.RETURNS,
-                                                                            instance.Q) # No devuelve indices, devuelve numero nodos
+                                                                            Q) # No devuelve indices, devuelve numero nodos
                     unsolved_total.extend(unsolved_clientes)
                     rutas[d] = ruta_d
 
