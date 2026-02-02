@@ -189,5 +189,10 @@ python -m pytest
 
 # Run all tests via the main entry point
 python3 main.py --test
+              > --test (all tests)
+              > --test tests/test_time_windows (single file)
+              > --test tests/test_file::test_name (single test)
+
+# example: python3 main.py --test tests/test_time_windows.py::test_feacible
 ```
 
