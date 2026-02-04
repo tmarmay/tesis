@@ -7,6 +7,7 @@
 Este proyecto implementa y compara distintos enfoques para resolver el **Problema de Ruteo de Vehículos con Múltiples Depósitos y Ventanas de Tiempo (MD-VRP-TW)**.  
 El objetivo es construir un **framework experimental modular**, que permita evaluar heurísticas, metaheurísticas y modelos exactos bajo instancias comunes y comparables.
 
+![architecture](src/architecture.png)
 ---
 
 ### Descripción del problema
