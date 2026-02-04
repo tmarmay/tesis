@@ -178,6 +178,7 @@ Solver: MILP
 pip install -r req.txt
 sudo apt-get install glpk-utils
 sudo apt install python3-pytest
+sudo apt install sqlite3 -y
 ```
 
 
