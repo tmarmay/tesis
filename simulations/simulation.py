@@ -11,7 +11,7 @@ class Simulation:
     y guarda los resultados.
     """
 
-    def __init__(self, instances, solvers):
+    def __init__(self, instances: list, solvers: dict):
         """
         instances: list de ProblemInstance
         solvers: dict {solver_name: solver_object}
@@ -20,7 +20,7 @@ class Simulation:
         self.solvers = solvers
         self.results = []
 
-    def run(self):
+    def run(self) -> None:
         """
         Ejecuta todos los solvers sobre todas las instancias
         """
@@ -42,5 +42,5 @@ class Simulation:
                     "not_visited": solution.unserved_customers
                 })
 
-    def get_results(self):
+    def get_results(self) -> list[dict]:
         return self.results
