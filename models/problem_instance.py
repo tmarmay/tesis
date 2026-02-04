@@ -41,11 +41,13 @@ class ProblemInstance:
         lines = []
         lines.append(f"ProblemInstance: {self.name}")
         lines.append("-" * 40)
-        lines.append(f"Vehicles (V): {self.V}")
+        lines.append(f"Vehicles: {self.V}")
         lines.append(f"Customers: {self.CUSTOMERS}")
-        lines.append(f"Total nodes (N): {self.N}")
+        lines.append(f"Total nodes: {self.N}")
+
 
         lines.append("")
+        lines.append(f"Customers: {list(self.C)}")
         lines.append(f"Depots: {self.DEPOTS}")
         lines.append(f"Returns: {list(self.RETURNS.values())}")
 
