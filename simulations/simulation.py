@@ -36,7 +36,7 @@ class Simulation:
         for inst_id, instance in enumerate(self.instances):
 
             for solver_name, solver in self.solvers.items():
-                error_msg = ""
+                errormsg = ""
                 if self.timeout is not None:
                     signal.signal(signal.SIGALRM, _timeout_handler)
                     signal.alarm(int(self.timeout))
@@ -53,8 +53,8 @@ class Simulation:
 
                 except Exception as e:
                     status = "error"
-                    error_msg = str(e)
-                    error_msg(f"Solver {solver_name}: error {error_msg}")
+                    errormsg = str(e)
+                    error_pp(f"Solver {solver_name}: error {errormsg}")
 
                 finally:
                     if self.timeout is not None:
@@ -69,7 +69,7 @@ class Simulation:
                     "routes": solution.routes,
                     "not_visited": solution.unserved_customers,
                     "status": status,
-                    "error": error_msg
+                    "error": errormsg
                 })
 
     def get_results(self) -> list[dict]:
