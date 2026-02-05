@@ -1,8 +1,15 @@
-# simulations/simulation.py
+from helpers.pretty_print import *
 
-from typing import List, Dict
+from typing import Optional
 from time import time
+import signal
 
+class TimeoutException(Exception):
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise TimeoutException()
 
 class Simulation:
     """
@@ -11,13 +18,15 @@ class Simulation:
     y guarda los resultados.
     """
 
-    def __init__(self, instances: list, solvers: dict):
+    def __init__(self, instances: list, solvers: dict, timeout: Optional[int] = None):
         """
         instances: list de ProblemInstance
         solvers: dict {solver_name: solver_object}
+        timeout: maximum time for the solver to solve problem instance 
         """
         self.instances = instances
         self.solvers = solvers
+        self.timeout = timeout
         self.results = []
 
     def run(self) -> None:
@@ -27,10 +36,29 @@ class Simulation:
         for inst_id, instance in enumerate(self.instances):
 
             for solver_name, solver in self.solvers.items():
+                error_msg = ""
+                if self.timeout is not None:
+                    signal.signal(signal.SIGALRM, _timeout_handler)
+                    signal.alarm(int(self.timeout))
 
-                start = time()
-                solution = solver.solve(instance)
-                runtime = time() - start
+                try:
+                    start = time()
+                    solution = solver.solve(instance)
+                    runtime = time() - start
+                    status = "finished"
+
+                except TimeoutException:
+                    status = "timeout"
+                    warning_pp(f"Solver {solver_name} timeout")
+
+                except Exception as e:
+                    status = "error"
+                    error_msg = str(e)
+                    error_msg(f"Solver {solver_name}: error {error_msg}")
+
+                finally:
+                    if self.timeout is not None:
+                        signal.alarm(0)
 
                 self.results.append({
                     "instance_id": inst_id,
@@ -39,7 +67,9 @@ class Simulation:
                     "feasible": solution.feasible,
                     "runtime": runtime,
                     "routes": solution.routes,
-                    "not_visited": solution.unserved_customers
+                    "not_visited": solution.unserved_customers,
+                    "status": status,
+                    "error": error_msg
                 })
 
     def get_results(self) -> list[dict]:
