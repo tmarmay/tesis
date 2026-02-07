@@ -26,7 +26,7 @@ class SyntheticGenerator:
         self.tw_low, self.tw_high = TIME_WINDOW_TIGHTNESS[tw_tightness]
         self.seed = seed
         self.rng = np.random.default_rng(seed)
-        self.T_MAX = 10 * num_customers # Largo temporal en el que se desarolla la simulacion
+        self.T_MAX = 100 * num_customers # Largo temporal en el que se desarolla la simulacion
 
     def generate(self) -> ProblemInstance:
         """
@@ -47,7 +47,7 @@ class SyntheticGenerator:
         cost_matrix = (M + M.T) // 2
         np.fill_diagonal(cost_matrix, 99)
 
-        tij = cost_matrix.copy()
+        tij = self.rng.integers(5, 10, size=(N, N))
 
         # ventanas de tiempo
         ei = [0] * N
