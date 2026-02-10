@@ -14,7 +14,7 @@ class ExperimentRunner:
     - maneja timeouts
     """
 
-    def __init__(self, *, experiment, solvers: Dict[str, object], timeout: Optional[int] = None):
+    def __init__(self, *, experiment, solvers: Dict[str, object], instance_reps: int, timeout: Optional[int] = None):
         """
         experiment: Experiment
         solvers: dict {solver_name: solver_object}
@@ -22,16 +22,22 @@ class ExperimentRunner:
         """
         self.experiment = experiment
         self.solvers = solvers
+        self.instance_repetitions = instance_reps 
         self.timeout = timeout
-
-
+    
+    def __get_solver_instnace_reps(self, solver) -> int:
+        if solver.is_stochastic():
+            return self.instance_repetitions
+        return 1
+    
     def _already_run(self, experiment_id, instance_id) -> bool:
         return already_run(experiment_id=experiment_id, instance_id=instance_id)
 
     def _save_result(self, result: dict) -> None:
         for i in range(len(result['experiment'])):
             save_result(result['experiment_id'], 
-                        result['instance_id'], 
+                        result['instance_id'],
+                        result['instance_repetition'],
                         result['experiment'][i])
 
     def run(self):
@@ -47,16 +53,19 @@ class ExperimentRunner:
                 continue
 
             ok_pp(f"[RUN] {instance_id}")
-            
-            sim = Simulation(instances=[instance], solvers=self.solvers, timeout=self.timeout)
-            sim.run()
 
-            sim_results = sim.get_results()
+            for solver_name, solver in self.solvers.items():
+                
+                solver_reps = self.__get_solver_instnace_reps(solver)
+                for k in range(solver_reps):
+                    sim = Simulation(instance_id=instance_id, instance=instance, solver=solver, timeout=self.timeout)
+                    sim.run()
+                    sim_results = sim.get_results()
 
-            result['experiment_id'] = experiment_id
-            result['instance_id'] = instance_id
-            result['experiment'] = sim_results
-                        
-            self._save_result(result)
+                    result['experiment_id'] = experiment_id
+                    result['instance_id'] = instance_id
+                    result['experiment'] = sim_results
+                    result['instance_repetition'] = k
+                    self._save_result(result)
 
         ok_pp("Experiment finished.")

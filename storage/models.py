@@ -10,6 +10,7 @@ class RunResult(Base):
     
     experiment_id = Column(String, index=True)
     instance_id = Column(String, index=True)
+    instance_repetition = Column(Integer)
     solver = Column(String, index=True)
 
     status = Column(String)  # finished / timeout / error

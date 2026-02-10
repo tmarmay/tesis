@@ -26,7 +26,7 @@ def main(cfg):
 
         gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
         exp = Experiment(name=cfg.experiments['name'], generator=gen, num_instances=cfg.experiments['num_instances'])
-        runner = ExperimentRunner(experiment=exp, solvers=solvers, timeout=cfg.experiments['timeout'])
+        runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'])
         runner.run()
         return
     # ------------------------

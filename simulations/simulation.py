@@ -1,5 +1,7 @@
 from helpers.pretty_print import *
 from models.solutions import Solution
+from solvers.base_solver import BaseSolver
+from models.problem_instance import ProblemInstance
 
 from typing import Optional
 from time import time
@@ -20,14 +22,15 @@ class Simulation:
     y guarda los resultados.
     """
 
-    def __init__(self, instances: list, solvers: dict, timeout: Optional[int] = None):
+    def __init__(self, *,instance_id: str, instance: ProblemInstance, solver: BaseSolver, timeout: Optional[int] = None):
         """
-        instances: list de ProblemInstance
-        solvers: dict {solver_name: solver_object}
+        instance: ProblemInstance
+        solver: solver obj
         timeout: maximum time for the solver to solve problem instance 
         """
-        self.instances = instances
-        self.solvers = solvers
+        self.instance_id = instance_id
+        self.instance = instance
+        self.solver = solver
         self.timeout = timeout
         self.results = []
 
@@ -35,46 +38,43 @@ class Simulation:
         """
         Ejecuta todos los solvers sobre todas las instancias
         """
-        for inst_id, instance in enumerate(self.instances):
+        if self.timeout is not None:
+            signal.signal(signal.SIGALRM, _timeout_handler)
+            signal.alarm(int(self.timeout))
+        
+        errormsg = ""
+        try:
+            start = time()
+            solution = self.solver.solve(self.instance)
+            runtime = time() - start
+            status = "finished"
 
-            for solver_name, solver in self.solvers.items():
-                solution, runtime, errormsg = None, 0, ""
-                if self.timeout is not None:
-                    signal.signal(signal.SIGALRM, _timeout_handler)
-                    signal.alarm(int(self.timeout))
+        except TimeoutException:
+            status = "timeout"
+            warning_pp(f"Solver {self.solver.get_solver_name()} timeout")
 
-                try:
-                    start = time()
-                    solution = solver.solve(instance)
-                    runtime = time() - start
-                    status = "finished"
+        except Exception as e:
+            status = "error"
+            errormsg = str(e)
+            error_pp(f"Solver {self.solver.get_solver_name()}: error {errormsg}")
 
-                except TimeoutException:
-                    status = "timeout"
-                    warning_pp(f"Solver {solver_name} timeout")
+        finally:
+            if self.timeout is not None:
+                signal.alarm(0)
+            if solution is None:
+                solution = Solution(total_cost=np.inf, feasible=False, unserved_customers=self.instance.C, routes={})
 
-                except Exception as e:
-                    status = "error"
-                    errormsg = str(e)
-                    error_pp(f"Solver {solver_name}: error {errormsg}")
-
-                finally:
-                    if self.timeout is not None:
-                        signal.alarm(0)
-                    if solution is None:
-                        solution = Solution(total_cost=np.inf, feasible=False, unserved_customers=instance.C, routes={})
-
-                self.results.append({
-                    "instance_id": inst_id,
-                    "solver": solver_name,
-                    "cost": solution.total_cost,
-                    "feasible": solution.feasible,
-                    "runtime": runtime,
-                    "routes": solution.routes,
-                    "not_visited": solution.unserved_customers,
-                    "status": status,
-                    "error": errormsg
-                })
+        self.results.append({
+            "instance_id": self.instance_id,
+            "solver": self.solver.get_solver_name(),
+            "cost": solution.total_cost,
+            "feasible": solution.feasible,
+            "runtime": runtime,
+            "routes": solution.routes,
+            "not_visited": solution.unserved_customers,
+            "status": status,
+            "error": errormsg
+        })
 
     def get_results(self) -> list[dict]:
         return self.results

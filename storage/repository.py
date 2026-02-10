@@ -1,12 +1,13 @@
 from storage.db import SessionLocal
 from storage.models import RunResult
 
-def save_result(experiment_id: int, instance_id: int, result: dict) -> None:
+def save_result(experiment_id: int, instance_id: int, instance_repetition: int, result: dict) -> None:
     db = SessionLocal()
 
     run = RunResult(
         experiment_id=experiment_id,
         instance_id=instance_id,
+        instance_repetition=instance_repetition,
         status=result["status"],
         solver=result["solver"],
         feasible=result.get("feasible"),
