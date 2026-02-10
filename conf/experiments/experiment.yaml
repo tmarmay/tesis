@@ -4,4 +4,5 @@ capacity: [1, 5]
 seed: 42
 name: hydra1
 num_instances: 5
+instance_reps: 3
 timeout: 500
