@@ -12,18 +12,31 @@ import numpy as np
 
 
 class ACOSolver(BaseSolver):
-    def __init__(self, cfg_aco: dict):
-        self.NUM_ANTS = cfg_aco['num_ants']
-        self.NUM_ITER = cfg_aco['num_iter']
-        self.ALPHA = cfg_aco['alpha']     # influencia de la feromona
-        self.BETA = cfg_aco['beta']       # influencia de la heurística (1/distancia)
-        self.RHO = cfg_aco['rho']         # tasa de evaporación
-        self.PHE = cfg_aco['phe']         # cantidad de feromona depositada
-        self.GAMMA = cfg_aco['gamma']     # penaliza vehículos con mucha capacidad
-        self.LAMBDA = cfg_aco['lambda']
-        self.penalty = cfg_aco['penalty']
-        self.TAU_MAX = cfg_aco['tau_max']
-        self.TAU_MIN = cfg_aco['tau_min']
+    def __init__(self, cfg_aco: dict=None):
+        if cfg_aco is None:
+            self.NUM_ANTS = 100
+            self.NUM_ITER = 1000
+            self.ALPHA =1.0
+            self.BETA =5.0
+            self.RHO = 0.5
+            self.PHE = 100
+            self.GAMMA = 2
+            self.LAMBDA = 5
+            self.penalty = 10
+            self.TAU_MAX = 10
+            self.TAU_MIN = 1e-4
+        else:
+            self.NUM_ANTS = cfg_aco['num_ants']
+            self.NUM_ITER = cfg_aco['num_iter']
+            self.ALPHA = cfg_aco['alpha']     # influencia de la feromona
+            self.BETA = cfg_aco['beta']       # influencia de la heurística (1/distancia)
+            self.RHO = cfg_aco['rho']         # tasa de evaporación
+            self.PHE = cfg_aco['phe']         # cantidad de feromona depositada
+            self.GAMMA = cfg_aco['gamma']     # penaliza vehículos con mucha capacidad
+            self.LAMBDA = cfg_aco['lambda']
+            self.penalty = cfg_aco['penalty']
+            self.TAU_MAX = cfg_aco['tau_max']
+            self.TAU_MIN = cfg_aco['tau_min']
 
     def phase_one(self, instance: ProblemInstance) -> dict:
         # =============================
