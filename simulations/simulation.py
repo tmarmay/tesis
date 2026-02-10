@@ -1,8 +1,10 @@
 from helpers.pretty_print import *
+from models.solutions import Solution
 
 from typing import Optional
 from time import time
 import signal
+import numpy as np
 
 class TimeoutException(Exception):
     pass
@@ -36,7 +38,7 @@ class Simulation:
         for inst_id, instance in enumerate(self.instances):
 
             for solver_name, solver in self.solvers.items():
-                errormsg = ""
+                solution, runtime, errormsg = None, 0, ""
                 if self.timeout is not None:
                     signal.signal(signal.SIGALRM, _timeout_handler)
                     signal.alarm(int(self.timeout))
@@ -59,6 +61,8 @@ class Simulation:
                 finally:
                     if self.timeout is not None:
                         signal.alarm(0)
+                    if solution is None:
+                        solution = Solution(total_cost=np.inf, feasible=False, unserved_customers=instance.C, routes={})
 
                 self.results.append({
                     "instance_id": inst_id,
