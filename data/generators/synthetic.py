@@ -2,8 +2,7 @@ import numpy as np
 from models.problem_instance import ProblemInstance
 
 class SyntheticGenerator:
-    def __init__(self, *, num_customers: int, num_vehicles: int, capacity: list[int],
-                cfg_generator: dict, seed: int):
+    def __init__(self, *, cfg_experiment: dict, cfg_generator: dict):
         
         cost_range=cfg_generator['cost_range'] 
         cost_ranges=cfg_generator['matrix_costs_ranges']
@@ -11,14 +10,14 @@ class SyntheticGenerator:
         time_windows_tightness=cfg_generator['time_windows_tightness']
         t_max=cfg_generator['t_max']
 
-        self.num_customers = num_customers
-        self.num_vehicles = num_vehicles
-        self.capacity = capacity
+        self.num_customers = cfg_experiment['num_customers']
+        self.num_vehicles = cfg_experiment['num_vehicles']
+        self.capacity = cfg_experiment['capacity']
         self.cost_low, self.cost_high = cost_ranges[cost_range]
         self.tw_low, self.tw_high = time_windows_tightness[tw_tightness] #Representa el ancho de las ventanas; no el inicio/fin
-        self.seed = seed
-        self.rng = np.random.default_rng(seed)
-        self.T_MAX = t_max * num_customers # Largo temporal en el que se desarolla la simulacion
+        self.seed = cfg_experiment['seed']
+        self.rng = np.random.default_rng(self.seed)
+        self.T_MAX = t_max * cfg_experiment['num_customers'] # Largo temporal en el que se desarolla la simulacion
 
     def generate(self) -> ProblemInstance:
         """
