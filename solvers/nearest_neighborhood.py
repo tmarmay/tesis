@@ -150,3 +150,9 @@ class NearestNeighborSolver(BaseSolver):
         
         rutas, costo, no_visitados = self.phase_two(instance, assign)
         return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
+
+    def is_stochastic(self) -> bool:
+        return True
+
+    def get_solver_name(self) -> str:
+        return "NearestNeighbor"

@@ -184,12 +184,16 @@ class MILPSolver(BaseSolver):
         no_visitados = [c for c in instance.C if c not in visitados]
 
         return rutas, costo_total, no_visitados
-
     
-    def solve(self, instance: ProblemInstance):
+    def solve(self, instance: ProblemInstance) -> Solution:
         rutas, costo, no_visitados = self.milp2a2_solver(instance)
         return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
-    
+
+    def is_stochastic(self) -> bool:
+        return False
+
+    def get_solver_name(self) -> str:
+        return "MILP"
 
 """
 tengo que boorar pero lo dejo por las dudas para debug
