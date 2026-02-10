@@ -1,0 +1,9 @@
+defaults:
+  - generator: synthetic
+  - solvers/aco: aco
+  - experiments: experiment
+  
+# Overwrite
+# generator:
+#   cost_profile: high
+#   tw_windows: critical

@@ -1,0 +1,17 @@
+# Base parameters
+t_max: 100
+
+# Selectors
+cost_range: low
+tw_tightness: loose
+
+# Available options
+matrix_costs_ranges:
+  low: [1, 20]
+  high: [100, 200]
+  high_dispersion: [1, 300]
+
+time_windows_tightness:
+  loose: [0, 80]
+  tight: [0, 20]
+  critical: [0, 7]

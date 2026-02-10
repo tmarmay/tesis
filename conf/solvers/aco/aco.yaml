@@ -1,0 +1,11 @@
+num_ants: 100
+num_iter: 1000
+alpha: 1.0       # influencia de la feromona
+beta: 5.0        # influencia de la heurística (1/distancia)
+rho: 0.5         # tasa de evaporación
+phe: 100         # cantidad de feromona depositada
+gamma: 2        # penaliza vehículos con mucha capacidad
+lambda: 5
+penalty: 10
+tau_max: 10
+tau_min: 1e-4
