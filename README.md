@@ -186,15 +186,10 @@ sudo apt install sqlite3 -y
 ```bash
 python3 main.py
 
-# Run the full test suite using pytest
-python -m pytest
+python -m pytest # Run the full test suite using pytest
+python3 -m pytest tests/<file>.py # Run tests from single file
+python3 -m pytest tests/<file>.py::<test_fun> # Run single test from single file
 
-# Run all tests via the main entry point
-python3 main.py --test
-              > --test (all tests)
-              > --test tests/test_time_windows (single file)
-              > --test tests/test_file::test_name (single test)
-
-# example: python3 main.py --test tests/test_time_windows.py::test_feacible
+# example: python3 -m pytest tests/test_cost.py::test_cost_sum
 ```
 
