@@ -2,6 +2,6 @@ num_customers: 3
 num_vehicles: 2
 capacity: [1, 5]
 seed: 42
-name: hydra0
+name: hydra1
 num_instances: 5
 timeout: 500

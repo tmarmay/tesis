@@ -1,8 +1,10 @@
 defaults:
+  - mode: simulation
   - generator: synthetic
   - solvers/aco: aco
   - experiments: experiment
-  
+  - _self_
+
 # Overwrite
 # generator:
 #   cost_profile: high
