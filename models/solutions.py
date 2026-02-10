@@ -5,7 +5,7 @@ class Solution:
     Representa una solución del MD-VRP-TW.
     """
 
-    def __init__(self, routes, total_cost, feasible, unserved_customers=None):
+    def __init__(self, routes: dict, total_cost: float, feasible:bool, unserved_customers=None):
         """
         routes: dict {depot: [nodos en orden]}
         total_cost: float
