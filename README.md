@@ -8,6 +8,7 @@ Este proyecto implementa y compara distintos enfoques para resolver el **Problem
 El objetivo es construir un **framework experimental modular**, que permita evaluar heurísticas, metaheurísticas y modelos exactos bajo instancias comunes y comparables.
 
 ![architecture](src/architecture.png)
+![experiment architecture](str)
 ---
 
 ### Descripción del problema
@@ -177,9 +178,14 @@ Solver: MILP
 
 ```bash
 pip install -r req.txt
-sudo apt-get install glpk-utils
-sudo apt install python3-pytest
+sudo apt install python3-pytest -y
 sudo apt install sqlite3 -y
+
+# Milp Solvers
+sudo apt-get install glpk-utils -y
+sudo apt install coinor-cbc -y
+pip install highspy
+pip install gurobipy
 ```
 
 
