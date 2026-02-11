@@ -14,14 +14,15 @@ solvers = {
 }
 
 def test_cost_sum():
-    sim = Simulation(
-        instances=[cost_sum],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
-    
-    for result in results:
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_cost_sum",
+            instance=cost_sum,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
+        
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
@@ -47,14 +48,15 @@ def test_cost_sum():
         print(f"{cost_sum.name} pasó para {result['solver']}")
 
 def test_cheap_route():
-    sim = Simulation(
-        instances=[cheaper_route],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_cheap_route",
+            instance=cheaper_route,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")

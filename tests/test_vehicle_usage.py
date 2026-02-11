@@ -14,14 +14,15 @@ solvers = {
 }
 
 def test_single_vehicle_required():
-    sim = Simulation(
-        instances=[single_vehicle_required],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
-    
-    for result in results:
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_single_vehicle_required",
+            instance=single_vehicle_required,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
+        
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
@@ -48,18 +49,18 @@ def test_single_vehicle_required():
             f"el solver deberia usar un solo vehiculo"
         )
 
-
         print(f"{single_vehicle_required.name} pasó para {result['solver']}")
 
 def test_two_vehicle_required():
-    sim = Simulation(
-        instances=[two_vehicle_required],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_two_vehicle_required",
+            instance=two_vehicle_required,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")

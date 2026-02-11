@@ -14,14 +14,15 @@ solvers = {
 }
 
 def test_infeacible():
-    sim = Simulation(
-        instances=[infeacible],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_infeacible",
+            instance=infeacible,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
@@ -42,14 +43,15 @@ def test_infeacible():
         print(f"{infeacible.name} pasó para {result['solver']}")
 
 def test_feacible():
-    sim = Simulation(
-        instances=[feacible],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
-    
-    for result in results:
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_feacible",
+            instance=feacible,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
+        
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")

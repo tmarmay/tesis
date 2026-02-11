@@ -14,14 +14,15 @@ solvers = {
 }
 
 def test_insufficient_capacity():
-    sim = Simulation(
-        instances=[infeasible_cause_capacity],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_insufficient_capacity",
+            instance=infeasible_cause_capacity,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
@@ -37,14 +38,15 @@ def test_insufficient_capacity():
         print(f"{infeasible_cause_capacity.name} pasó para {result['solver']}")
 
 def test_insufficient_capacity2():
-    sim = Simulation(
-        instances=[infeasible_cause_capacity2],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_insufficient_capacity2",
+            instance=infeasible_cause_capacity2,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
@@ -60,14 +62,15 @@ def test_insufficient_capacity2():
         print(f"{infeasible_cause_capacity2.name} pasó para {result['solver']}")
 
 def test_sufficient_capacity():
-    sim = Simulation(
-        instances=[feasible_cause_capacity],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_sufficient_capacity",
+            instance=feasible_cause_capacity,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
@@ -84,14 +87,15 @@ def test_sufficient_capacity():
 
 
 def test_sufficient_capacity2():
-    sim = Simulation(
-        instances=[feasible_cause_capacity2],
-        solvers=solvers
-    )
-    sim.run()
-    results = sim.get_results()
+    for s_name, solver in solvers.items():
+        sim = Simulation(
+            instance_id="test_sufficient_capacity2",
+            instance=feasible_cause_capacity2,
+            solver=solver
+        )
+        sim.run()
+        result = sim.get_results()[0]
     
-    for result in results:
         print("\n-----------------------------")
         print(f"Solver: {result['solver']}")
         print(f"Factible: {result['feasible']}")
