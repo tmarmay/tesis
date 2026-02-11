@@ -1,0 +1,9 @@
+# Selectors
+solver: gurobi
+
+# Available options
+solvers:
+  gurobi: gurobi
+  highs: highs
+  cbc: cbc
+  glpk: glpk

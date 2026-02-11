@@ -2,6 +2,7 @@ defaults:
   - mode: simulation
   - generator: synthetic
   - solvers/aco: aco
+  - solvers/milp: milp
   - experiments: experiment
   - _self_
 
