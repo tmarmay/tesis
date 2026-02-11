@@ -1,6 +1,8 @@
 num_customers: 3
 num_vehicles: 2
 capacity: [1, 5]
+vehicle_penalty: 0
+customer_demand: 1
 seed: 42
 name: hydra1
 num_instances: 5

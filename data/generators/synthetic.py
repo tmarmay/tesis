@@ -13,6 +13,8 @@ class SyntheticGenerator:
         self.num_customers = cfg_experiment['num_customers']
         self.num_vehicles = cfg_experiment['num_vehicles']
         self.capacity = cfg_experiment['capacity']
+        self.vehicle_penalty = cfg_experiment['vehicle_penalty']
+        self.customer_demand = cfg_experiment['customer_demand']
         self.cost_low, self.cost_high = cost_ranges[cost_range]
         self.tw_low, self.tw_high = time_windows_tightness[tw_tightness] #Representa el ancho de las ventanas; no el inicio/fin
         self.seed = cfg_experiment['seed']
@@ -65,8 +67,8 @@ class SyntheticGenerator:
             tij=tij,
             ei=ei,
             li=li,
-            F=[5 for _ in range(V)],
-            demands=[1 for _ in range(n)],
+            F=[self.vehicle_penalty for _ in range(V)],
+            demands=[self.customer_demand for _ in range(n)],
             Q=self.capacity,
         )
 
