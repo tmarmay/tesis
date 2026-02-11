@@ -42,7 +42,7 @@ class Simulation:
             signal.signal(signal.SIGALRM, _timeout_handler)
             signal.alarm(int(self.timeout))
         
-        errormsg = ""
+        solution, runtime, errormsg = None, "", np.inf
         try:
             start = time()
             solution = self.solver.solve(self.instance)
