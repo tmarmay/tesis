@@ -13,7 +13,7 @@ def main(cfg):
     solvers = {
         "NearestNeighbor": NearestNeighborSolver(),
         "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
-        "MILP": MILPSolver()
+        "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
     }
 
     # ------------------------
@@ -37,9 +37,8 @@ def main(cfg):
     # print("Running normal simulation...")
 
     #print help
+    # from tests.test_capacity_demand import test_sufficient_capacity
+    # test_sufficient_capacity()
 
 if __name__ == "__main__":
     main()
-
-# from tests.test_big_feasible_problem import test_big_problem
-# test_big_problem()
