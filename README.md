@@ -188,6 +188,7 @@ pip install highspy
 pip install gurobipy
 ```
 
+### Tests
 
 ```bash
 python3 main.py
@@ -199,3 +200,15 @@ python3 -m pytest tests/<file>.py::<test_fun> # Run single test from single file
 # example: python3 -m pytest tests/test_cost.py::test_cost_sum
 ```
 
+### Experimentos
+
+Aunque al ejecutar [main.py](main.py) el experimento se inicia automáticamente con la configuración definida en [conf](conf/)
+, también es posible modificar los parámetros según sea necesario para generar el experimento deseado de la siguiente manera utilizando [Hydra](https://hydra.cc/):
+
+```bash
+python main.py -m \
+  solvers.aco.alpha=0.5,1 \
+  solvers.aco.beta=3,5 \
+  solvers.aco.rho=0.2,0.5 \
+  'experiments.name=aco_a${solvers.aco.alpha}_b${solvers.aco.beta}_r${solvers.aco.rho}'
+```
