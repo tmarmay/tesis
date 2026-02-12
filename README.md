@@ -8,7 +8,7 @@ Este proyecto implementa y compara distintos enfoques para resolver el **Problem
 El objetivo es construir un **framework experimental modular**, que permita evaluar heurísticas, metaheurísticas y modelos exactos bajo instancias comunes y comparables.
 
 ![architecture](src/architecture.png)
-![experiment architecture](str)
+![experiment architecture](src/experiment_architecture.png)
 ---
 
 ### Descripción del problema
