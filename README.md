@@ -206,9 +206,16 @@ Aunque al ejecutar [main.py](main.py) el experimento se inicia automáticamente 
 , también es posible modificar los parámetros según sea necesario para generar el experimento deseado de la siguiente manera utilizando [Hydra](https://hydra.cc/):
 
 ```bash
+# -m producto carteciano
 python main.py -m \
   solvers.aco.alpha=0.5,1 \
   solvers.aco.beta=3,5 \
   solvers.aco.rho=0.2,0.5 \
   'experiments.name=aco_a${solvers.aco.alpha}_b${solvers.aco.beta}_r${solvers.aco.rho}'
+```
+
+```bash
+pip install py-spy
+sudo env "PATH=$PATH" py-spy top --pid 19220
+py-spy record -o profile.svg -- python tu_script.py
 ```
