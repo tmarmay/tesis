@@ -42,7 +42,7 @@ class Simulation:
             signal.signal(signal.SIGALRM, _timeout_handler)
             signal.alarm(int(self.timeout))
         
-        solution, runtime, errormsg = None, "", np.inf
+        solution, runtime, errormsg = None, np.inf, ""
         try:
             start = time()
             solution = self.solver.solve(self.instance)
@@ -64,17 +64,17 @@ class Simulation:
             if solution is None:
                 solution = Solution(total_cost=np.inf, feasible=False, unserved_customers=self.instance.C, routes={})
 
-        self.results.append({
-            "instance_id": self.instance_id,
-            "solver": self.solver.get_solver_name(),
-            "cost": solution.total_cost,
-            "feasible": solution.feasible,
-            "runtime": runtime,
-            "routes": solution.routes,
-            "not_visited": solution.unserved_customers,
-            "status": status,
-            "error": errormsg
-        })
+            self.results.append({
+                "instance_id": self.instance_id,
+                "solver": self.solver.get_solver_name(),
+                "cost": solution.total_cost,
+                "feasible": solution.feasible,
+                "runtime": runtime,
+                "routes": solution.routes,
+                "not_visited": solution.unserved_customers,
+                "status": status,
+                "error": errormsg
+            })
 
     def get_results(self) -> list[dict]:
         return self.results
