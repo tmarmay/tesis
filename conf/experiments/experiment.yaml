@@ -1,10 +1,10 @@
-num_customers: 3
-num_vehicles: 2
-capacity: [1, 5]
+num_customers: 10
+num_vehicles: 3
+capacity: [20]
 vehicle_penalty: 0
 customer_demand: 1
 seed: 42
-name: hydra1
-num_instances: 5
-instance_reps: 3
-timeout: 500
+name: find_error29
+num_instances: 10
+instance_reps: 10
+timeout: 100

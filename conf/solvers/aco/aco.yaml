@@ -1,9 +1,9 @@
 # Core
-num_ants: 10000
-num_iter: 10
+num_ants: 100
+num_iter: 1000
 alpha: 1.9      # influencia de la feromona
 beta: 1.3       # influencia de la heurística (1/distancia)
-rho: 0.8         # tasa de evaporación
+rho: 0.4        # tasa de evaporación
 
 #Primary Parameters
 lambda: 5

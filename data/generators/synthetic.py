@@ -15,7 +15,7 @@ class SyntheticGenerator:
         self.customer_demand = cfg_experiment['customer_demand']
         self.cost_low, self.cost_high = cost_ranges[cost_range]
         self.tw_low, self.tw_high = time_windows_tightness[tw_tightness] #Representa el ancho de las ventanas; no el inicio/fin
-        self.tw_min_value, self.tw_max_value = cfg_experiment['time_windows_values']
+        self.tw_min_value, self.tw_max_value = cfg_generator['time_windows_values']
         self.seed = cfg_experiment['seed']
 
         self.rng = np.random.default_rng(self.seed)
@@ -25,13 +25,16 @@ class SyntheticGenerator:
         avg_row_sum = np.mean(np.sum(tij, axis=1))
         self.T_MAX = avg_row_sum
 
-    def _generate_feasible_time_windows(self, DEPOTS, RETURNS, tij) -> tuple[list,list]:
+    def _generate_feasible_time_windows(self, tij) -> tuple[list,list]:
         """
         Genera ventanas garantizando al menos una solución factible.
         Usa construcción greedy por capacidad.
         """
         TW_DIM = self.num_customers + 2 * self.num_vehicles
-
+        C = [i for i in range(self.num_customers)] #CUSTOMERS
+        DEPOTS = [i for i in range(C[-1] + 1, C[-1] + 1 + self.num_vehicles)]
+        RETURNS = [i for i in range(C[-1] + self.num_vehicles + 1, TW_DIM)]
+        
         ei = [0] * TW_DIM
         li = [self.T_MAX] * TW_DIM
 
@@ -113,7 +116,7 @@ class SyntheticGenerator:
         tij = self.rng.integers(5, 10, size=(N, N))
         self._generate_tmax(tij=tij)
 
-        ei, li = self._generate_feasible_time_windows()
+        ei, li = self._generate_feasible_time_windows(tij=tij)
 
         return ProblemInstance(
             name=f"synthetic_n{n}_v{V}_seed{self.seed}",
