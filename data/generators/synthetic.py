@@ -12,7 +12,7 @@ class SyntheticGenerator:
 
         self.num_customers = cfg_experiment['num_customers']
         self.num_vehicles = cfg_experiment['num_vehicles']
-        self.capacity = cfg_experiment['capacity']
+        self.capacity = list(cfg_experiment['capacity']) * self.num_vehicles
         self.vehicle_penalty = cfg_experiment['vehicle_penalty']
         self.customer_demand = cfg_experiment['customer_demand']
         self.cost_low, self.cost_high = cost_ranges[cost_range]
