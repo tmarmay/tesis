@@ -8,8 +8,6 @@ class SyntheticGenerator:
         cost_ranges=cfg_generator['matrix_costs_ranges']
         tw_tightness=cfg_generator['tw_tightness']
         time_windows_tightness=cfg_generator['time_windows_tightness']
-        t_max=cfg_generator['t_max']
-
         self.num_customers = cfg_experiment['num_customers']
         self.num_vehicles = cfg_experiment['num_vehicles']
         self.capacity = list(cfg_experiment['capacity']) * self.num_vehicles
@@ -17,9 +15,85 @@ class SyntheticGenerator:
         self.customer_demand = cfg_experiment['customer_demand']
         self.cost_low, self.cost_high = cost_ranges[cost_range]
         self.tw_low, self.tw_high = time_windows_tightness[tw_tightness] #Representa el ancho de las ventanas; no el inicio/fin
+        self.tw_min_value, self.tw_max_value = cfg_experiment['time_windows_values']
         self.seed = cfg_experiment['seed']
+
         self.rng = np.random.default_rng(self.seed)
-        self.T_MAX = t_max * cfg_experiment['num_customers'] # Largo temporal en el que se desarolla la simulacion
+        
+    def _generate_tmax(self, tij) -> None:
+        # Largo temporal en el que se desarolla la simulacion
+        avg_row_sum = np.mean(np.sum(tij, axis=1))
+        self.T_MAX = avg_row_sum
+
+    def _generate_feasible_time_windows(self, DEPOTS, RETURNS, tij) -> tuple[list,list]:
+        """
+        Genera ventanas garantizando al menos una solución factible.
+        Usa construcción greedy por capacidad.
+        """
+        TW_DIM = self.num_customers + 2 * self.num_vehicles
+
+        ei = [0] * TW_DIM
+        li = [self.T_MAX] * TW_DIM
+
+        routes = [[] for _ in range(self.num_vehicles)]
+        remaining_capacity = self.capacity.copy()
+
+        customers = [i for i in range(self.num_customers)]
+        self.rng.shuffle(customers)
+
+        # Asignacion de rutas
+        v = 0
+        for c in customers:
+            demand = self.customer_demand
+
+            while v < self.num_vehicles and remaining_capacity[v] < demand:
+                v += 1
+
+            if v == self.num_vehicles:
+                raise ValueError("Instancia base infactible por capacidad.")
+
+            routes[v].append(c)
+            remaining_capacity[v] -= demand
+
+        # Simulacion de recorrido
+        arrival_times = {}
+        for v in range(self.num_vehicles):
+            depot = DEPOTS[v]
+            current = depot
+            time = 0
+
+            for c in routes[v]:
+                travel = tij[current][c]
+                time += travel
+                arrival_times[c] = time
+                #time += service_time
+
+                current = c
+            return_node = RETURNS[v]
+            time += tij[current][return_node]
+
+        # tightness controlado por rango tw_low/tw_high
+        for c in range(self.num_customers):
+            arrival = arrival_times[c]
+            
+            # slack depende de ancho permitido
+            base_width = self.rng.integers(self.tw_low, self.tw_high)
+
+            left_slack = self.rng.uniform(0.3, 0.7) * base_width
+            right_slack = base_width - left_slack
+
+            ei[c] = max(0, int(arrival - left_slack))
+            li[c] = min(self.T_MAX, int(arrival + right_slack))
+
+            if li[c] <= ei[c]:
+                li[c] = ei[c] + 5
+
+        for d in DEPOTS + RETURNS:
+            ei[d] = 0
+            li[d] = self.T_MAX
+
+        return ei, li
+
 
     def generate(self) -> ProblemInstance:
         """
@@ -29,11 +103,7 @@ class SyntheticGenerator:
         V = self.num_vehicles
 
         # nodos: [customers] [depots] [returns]
-        CUSTOMERS = list(range(n))               # customers
-        DEPOTS = list(range(n, n+V))             # depots
-        RETURNS = list(range(n+V, n+2*V))        # returns
-
-        N = V + n + V
+        N = n + 2 * V
 
         # matriz de costos / tiempos (simétrica)
         M = self.rng.integers(self.cost_low, self.cost_high, size=(N, N))
@@ -41,23 +111,9 @@ class SyntheticGenerator:
         np.fill_diagonal(cost_matrix, 99)
 
         tij = self.rng.integers(5, 10, size=(N, N))
+        self._generate_tmax(tij=tij)
 
-        # ventanas de tiempo
-        ei = [0] * N
-        li = [self.T_MAX] * N
-
-        # ventanas SOLO para customers
-        for c in range(n):
-            t_i = self.rng.integers(0, self.T_MAX)
-            w = self.rng.integers(self.tw_low, self.tw_high)
-
-            ei[c] = max(0, t_i - w // 2)
-            li[c] = min(self.T_MAX, ei[c] + w)
-
-        # depots y returns sin restricción fuerte
-        for d in range(n, N):
-            ei[d] = 0
-            li[d] = self.T_MAX
+        ei, li = self._generate_feasible_time_windows()
 
         return ProblemInstance(
             name=f"synthetic_n{n}_v{V}_seed{self.seed}",

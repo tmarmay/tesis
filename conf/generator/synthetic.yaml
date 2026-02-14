@@ -1,5 +1,5 @@
 # Base parameters
-t_max: 100
+time_windows_values: [5, 10]
 
 # Selectors
 cost_range: low
