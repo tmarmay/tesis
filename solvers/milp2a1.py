@@ -12,7 +12,6 @@ import pyomo.environ as pyo
 class MILPSolver(BaseSolver):
     def __init__(self, cfg_milp: dict=None):
         self.solver = "highs" if cfg_milp is None else cfg_milp['solver']
-        print(self.solver)
 
     def objective_rule(self, model):
         # Costo de los viajes
