@@ -11,6 +11,19 @@ El objetivo es construir un **framework experimental modular**, que permita eval
 ![experiment architecture](src/experiment_architecture.png)
 ---
 
+### Pendientes
+
+- [listo] Hable con nico y me presto atom
+- [preguntar] Estoy renegando con los hyperparametros de aco, porque varían según el tamaño del problema y no puedo encontrar la dependencia (hydra me vino al pelo para poder correr simulaciones con distintas combinaciones)
+- [pendiente] Poder correr instnacias en paralelo para hacer mas rapido las simualciones
+- [pendiente] (Cuando termine con aco) corro simulaciones para los distintos solvers de milp, hago un análisis y me quedo con el mejor
+  - [pendiente] licencia de guroby
+  - [listo] resto de solvers instalados / configurados
+- [pendiente] Decidir qué parámetros dejo fijos y cuales van a ser variables para las simulaciones de los 3 solvers
+- [pendiente] Corro muchos experimentos en atom
+- [pendiente] Análisis de los experimentos
+- [pendiente] Redacción tesis
+
 ### Descripción del problema
 
 El MD-VRP-TW consiste en determinar un conjunto de rutas para una flota de vehículos que:
@@ -181,6 +194,12 @@ pip install -r req.txt
 sudo apt install python3-pytest -y
 sudo apt install sqlite3 -y
 
+sudo apt install -y postgresql postgresql-contrib
+sudo -u postgres createuser $USER # Crear usuario PostgreSQL con el mismo nombre que tu usuario de sistema
+sudo -u postgres psql -c "ALTER USER $USER WITH SUPERUSER;" # Dar permisos (opcional pero práctico para desarrollo)
+createdb results # Crear la base de datos
+psql -l # Verificar que existe
+
 # Milp Solvers
 sudo apt-get install glpk-utils -y
 sudo apt install coinor-cbc -y
@@ -208,6 +227,8 @@ Aunque al ejecutar [main.py](main.py) el experimento se inicia automáticamente 
 ```bash
 # -m producto carteciano
 python main.py -m \
+  hydra/launcher=joblib \
+  hydra.launcher.n_jobs=4 \
   solvers.aco.alpha=0.5,1 \
   solvers.aco.beta=3,5 \
   solvers.aco.rho=0.2,0.5 \
@@ -218,4 +239,5 @@ python main.py -m \
 pip install py-spy
 sudo env "PATH=$PATH" py-spy top --pid 19220
 py-spy record -o profile.svg -- python tu_script.py
+psql -U tmarmay -h localhost -d results
 ```
