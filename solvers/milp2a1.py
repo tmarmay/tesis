@@ -12,7 +12,7 @@ import pyomo.environ as pyo
 class MILPSolver(BaseSolver):
     def __init__(self, cfg_milp: dict=None):
         self.solver = "highs" if cfg_milp is None else cfg_milp['solver']
-
+        
     def objective_rule(self, model):
         # Costo de los viajes
         travel_cost = sum(self.insta.cost_matrix[i][j] * model.x[k, i, j] for k in range(self.insta.V) for i in range(self.insta.N) for j in range(self.insta.N))
@@ -195,7 +195,7 @@ class MILPSolver(BaseSolver):
         return False
 
     def get_solver_name(self) -> str:
-        return "MILP"
+        return self.solver
 
 """
 tengo que boorar pero lo dejo por las dudas para debug
