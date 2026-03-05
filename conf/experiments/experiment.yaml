@@ -1,10 +1,18 @@
-num_customers: 10
-num_vehicles: 3
-capacity: [20]
+# Values come from analysis/milp.solvers.ipynb
+runtime_prediction:
+  a: 0.00023
+  alpha: 2.59
+  beta: 2.41
+  safety_factor: 0.002
+
+
+num_customers: 50
+num_vehicles: 50
+capacity: [100]
 vehicle_penalty: 0
 customer_demand: 1
 seed: 42
-name: find_error29
-num_instances: 10
+num_instances: 5
 instance_reps: 10
-timeout: 100
+timeout: 900
+name: test-timeout
