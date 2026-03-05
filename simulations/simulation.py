@@ -51,6 +51,7 @@ class Simulation:
 
         except TimeoutException:
             status = "timeout"
+            runtime = time() - start
             warning_pp(f"Solver {self.solver.get_solver_name()} timeout")
 
         except Exception as e:
