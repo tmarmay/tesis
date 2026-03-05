@@ -6,14 +6,28 @@ from storage.db import engine
 from storage.models import Base
 import hydra
 
+#ver como mejorar esto
+def timeout_estimator(params):
+    pred_params = params['runtime_prediction']
+    return int(pred_params['safety_factor'] * (params['num_customers'] ** pred_params['alpha']) * (params['num_vehicles'] ** pred_params['beta']))
+
+def ants_it_estimator(params):
+    if params['num_customers'] <= 50:
+        return 100,100
+    return 200, 300
 Base.metadata.create_all(bind=engine)
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(cfg):
+    cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
+    ants, it = ants_it_estimator(cfg.experiments)
+    cfg.solvers.aco['num_ants'] = ants
+    cfg.solvers.aco['num_iter'] = it
+
     solvers = {
         "NearestNeighbor": NearestNeighborSolver(),
-        "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
-        "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
+        # "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
+        # "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
     }
 
     # ------------------------
