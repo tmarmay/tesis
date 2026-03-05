@@ -184,6 +184,7 @@ class ACOSolver(BaseSolver):
                     costo_total += dist
                     costo_total += instance.F[idx_d]  # costo fijo por vehículo
 
+                # PORQUE GUARDO UNA SOLUCION QUE NO ES VALIDA ? CONVIENE DESCARTARLA -> porque tengo que castigar con feromonas si no encuentro solucion    
                 # Guardar la solución de esta hormiga
                 solutions.append((assign, rutas, costo_total, unsolved_total))
 
@@ -215,7 +216,7 @@ class ACOSolver(BaseSolver):
                 d = asign_mejor[c]
                 tau_assign[d][c] += delta
 
-            return mejor_rutas_global, mejor_costo_global, unsolved_clientes
+        return mejor_rutas_global, mejor_costo_global, unsolved_clientes
                 
     def solve(self, instance: ProblemInstance):
         rutas, costo, no_visitados = self.aco(instance)
