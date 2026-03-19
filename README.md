@@ -13,14 +13,8 @@ El objetivo es construir un **framework experimental modular**, que permita eval
 
 ### Pendientes
 
-- [listo] Hable con nico y me presto atom
-- [preguntar] Estoy renegando con los hyperparametros de aco, porque varían según el tamaño del problema y no puedo encontrar la dependencia (hydra me vino al pelo para poder correr simulaciones con distintas combinaciones)
-- [pendiente] Poder correr instnacias en paralelo para hacer mas rapido las simualciones
-- [pendiente] (Cuando termine con aco) corro simulaciones para los distintos solvers de milp, hago un análisis y me quedo con el mejor
-  - [pendiente] licencia de guroby
-  - [listo] resto de solvers instalados / configurados
 - [pendiente] Decidir qué parámetros dejo fijos y cuales van a ser variables para las simulaciones de los 3 solvers
-- [pendiente] Corro muchos experimentos en atom
+- [pendiente] Corro experimentos en atom
 - [pendiente] Análisis de los experimentos
 - [pendiente] Redacción tesis
 
