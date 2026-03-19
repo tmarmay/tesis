@@ -9,23 +9,55 @@ class NearestNeighborSolver(BaseSolver):
     def __init__(self):
         pass
 
-    # def phase_one(self, instance: ProblemInstance) -> dict:
-    #     """
-    #     FASE 1: Asignación simple
-    #     """
-    #     assign = {}
-    #     for c in instance.C:
-    #         best_v = None
-    #         best_cost = float("inf")
+    def matching(self, instance, V, Q):
+        assign, costo_total = {}, 0
 
-    #         for v in range(instance.V):
-    #             d_node = instance.DEPOTS[v]
-    #             if instance.cost_matrix[d_node][c] < best_cost:
-    #                 best_cost = instance.cost_matrix[d_node][c]
-    #                 best_v = v
+        V = instance.V
+        C = instance.C
+        Q = instance.Q.copy()
 
-    #         assign[c] = best_v
-    #     return assign
+        # estado por vehículo
+        current_node = {instance.DEPOTS[v]: instance.DEPOTS[v] for v in range(V)}
+        current_time = {v: 0 for v in range(V)}
+
+        for v in range(V):
+            best_v = None
+            best_c = None
+            best_time = float("inf")
+
+            if Q[v] == 0:
+                continue
+
+            u = current_node[instance.DEPOTS[v]]
+
+            for c in C:
+                travel = instance.tij[u][c]
+                arrival = current_time[v] + travel
+                start_service = max(arrival, instance.ei[c])
+
+                if start_service <= instance.li[c]:
+                    if start_service < best_time:
+                        best_time = start_service
+                        best_v = v
+                        best_c = c
+
+            # si no hay asignación factible (raro en este caso)
+            if best_c is None:
+                return {}, float("inf"), C
+
+            # asignar
+            depot = instance.DEPOTS[best_v]
+            ruta = [depot, best_c, instance.RETURNS[depot]]
+            assign[instance.DEPOTS[best_v]] = ruta
+
+            dist = 0
+            for a, b in zip(ruta[:-1], ruta[1:]):
+                dist += instance.cost_matrix[a][b]
+
+            costo_total += dist
+            costo_total += instance.F[best_v]  # penalización por usar vehículo
+            
+        return assign, costo_total, []
 
     def phase_one(self, instance):
         """
@@ -38,19 +70,17 @@ class NearestNeighborSolver(BaseSolver):
         C = instance.C
         Q = instance.Q.copy()
 
+        # estado por vehículo
+        current_node = {instance.DEPOTS[v]: instance.DEPOTS[v] for v in range(V)}
+        current_time = {v: 0 for v in range(V)}
+
         # ordenar clientes por urgencia temporal
         clientes = sorted(
             C,
             key=lambda c: (instance.ei[c] + instance.li[c]) / 2
         )
 
-        # estado por vehículo
-        current_node = {instance.DEPOTS[v]: instance.DEPOTS[v] for v in range(V)}
-        current_time = {v: 0 for v in range(V)}
-
-        assign = {}
-        unsolved_clients = []
-
+        assign, unsolved_clients = {}, []
         for c in clientes:
 
             best_v = None
@@ -58,7 +88,7 @@ class NearestNeighborSolver(BaseSolver):
 
             for v in range(V):
                 if Q[v] == 0:
-                    break
+                    continue
                 u = current_node[instance.DEPOTS[v]]
 
                 travel = instance.tij[u][c]
@@ -76,7 +106,7 @@ class NearestNeighborSolver(BaseSolver):
                 assign[c] = best_v
                 current_node[best_v] = c
                 current_time[best_v] = best_time + instance.service_time[c]
-                Q[v] -= 1
+                Q[best_v] -= 1
                 
         return assign, unsolved_clients
 
@@ -114,7 +144,7 @@ class NearestNeighborSolver(BaseSolver):
 
                 # elegir el más cercano (menor tiempo de viaje)
                 c_next, travel_time, inicio_servicio = min(
-                    candidatos, key=lambda x: x[1]
+                    candidatos, key=lambda x: x[1] #CREO QUE SERIA MEJOR ATENDERLOS SEGUN EL SERVICE TIME
                 )
 
                 ruta.append(c_next)
@@ -144,6 +174,10 @@ class NearestNeighborSolver(BaseSolver):
         return rutas, costo_total, []
     
     def solve(self, instance):
+        if len(instance.C) == instance.V:
+            rutas, costo, no_visitados = self.matching(instance, instance.V, instance.Q)
+            return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
+        
         assign, unsolved_clients = self.phase_one(instance)
         if unsolved_clients:
             return Solution(feasible=False, total_cost=float("inf"), routes={}, unserved_customers=unsolved_clients)
