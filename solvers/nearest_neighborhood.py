@@ -13,7 +13,7 @@ class NearestNeighborSolver(BaseSolver):
         assign, costo_total = {}, 0
 
         V = instance.V
-        C = instance.C
+        C = instance.C.copy()
         Q = instance.Q.copy()
 
         # estado por vehículo
@@ -56,6 +56,7 @@ class NearestNeighborSolver(BaseSolver):
 
             costo_total += dist
             costo_total += instance.F[best_v]  # penalización por usar vehículo
+            C.remove(best_c)
             
         return assign, costo_total, []
 
