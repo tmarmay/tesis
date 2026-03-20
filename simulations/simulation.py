@@ -2,6 +2,7 @@ from helpers.pretty_print import *
 from models.solutions import Solution
 from solvers.base_solver import BaseSolver
 from models.problem_instance import ProblemInstance
+from validators.solution_validator import SolutionChecker
 
 from typing import Optional
 from time import time
@@ -65,11 +66,17 @@ class Simulation:
             if solution is None:
                 solution = Solution(total_cost=np.inf, feasible=False, unserved_customers=self.instance.C, routes={})
 
+            valid = False
+            if solution.feasible:
+                schecker = SolutionChecker(insta=self.instance)
+                valid = schecker.check(solution.routes)
+
             self.results.append({
                 "instance_id": self.instance_id,
                 "solver": self.solver.get_solver_name(),
                 "cost": solution.total_cost,
                 "feasible": solution.feasible,
+                "valid": valid,
                 "runtime": runtime,
                 "routes": solution.routes,
                 "not_visited": solution.unserved_customers,
