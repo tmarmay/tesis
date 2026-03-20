@@ -15,6 +15,7 @@ class RunResult(Base):
 
     status = Column(String)  # finished / timeout / error
     feasible = Column(Boolean)
+    valid = Column(Boolean, default=False)
 
     cost = Column(Float)
     runtime = Column(Float)
