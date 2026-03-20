@@ -1,6 +1,6 @@
 # Core
-#num_ants       # in main.py
-#num_iter       # in main.py
+num_ants: 0       # in main.py
+num_iter: 0       # in main.py
 alpha: 1.9      # influencia de la feromona
 beta: 1.3       # influencia de la heurística (1/distancia)
 rho: 0.4        # tasa de evaporación
