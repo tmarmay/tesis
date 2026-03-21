@@ -69,7 +69,7 @@ class Simulation:
             valid = False
             if solution.feasible:
                 schecker = SolutionChecker(insta=self.instance)
-                valid = schecker.check(solution.routes)
+                valid = schecker.check(solution.routes, self.solver.get_solver_name())
 
             self.results.append({
                 "instance_id": self.instance_id,
