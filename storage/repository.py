@@ -29,12 +29,12 @@ def save_result(experiment_id: int, instance_id: int, instance_repetition: int, 
         db.close()
 
 
-def already_run(experiment_id: int, instance_id: int) -> bool:
+def already_run(experiment_id: int, instance_id: int, solver: str) -> bool:
     db = SessionLocal()
     exists = db.query(RunResult).filter(
         RunResult.experiment_id == experiment_id,
         RunResult.instance_id == instance_id,
-        RunResult.status == "finished"
+        RunResult.solver == solver  
     ).first() is not None
     db.close()
     return exists

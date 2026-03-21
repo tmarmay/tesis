@@ -30,8 +30,8 @@ class ExperimentRunner:
             return self.instance_repetitions
         return 1
     
-    def _already_run(self, experiment_id, instance_id) -> bool:
-        return already_run(experiment_id=experiment_id, instance_id=instance_id)
+    def _already_run(self, experiment_id, instance_id, solver) -> bool:
+        return already_run(experiment_id=experiment_id, instance_id=instance_id, solver=solver)
 
     def _save_result(self, result: dict) -> None:
         for i in range(len(result['experiment'])):
@@ -48,13 +48,20 @@ class ExperimentRunner:
         for instance_id, instance in self.experiment.iter_instances():
             result = {}
 
-            if self._already_run(experiment_id, instance_id): #no tiene en cuenta el solver
-                ok_pp(f"[SKIP] {instance_id} (already run)")
-                continue
+            print(f"\n{'*'*60}")
+            print(f"  Begin Instance {instance_id}")
+            print(f"{'*'*60}\n")
+            
+            for _, solver in self.solvers.items():
 
-            ok_pp(f"[RUN] {instance_id}")
+                if self._already_run(experiment_id, instance_id, solver.get_solver_name()):
+                    ok_pp(f"[SKIP] {instance_id} - {solver.get_solver_name()} (already run)")
+                    continue
+                ok_pp(f"[RUN] {instance_id} - {solver.get_solver_name()}")
 
-            for solver_name, solver in self.solvers.items():
+                print(f"\n{'='*40}")
+                print(f"  Solving using {solver.get_solver_name()}...")
+                print(f"{'='*40}\n")
                 
                 solver_reps = self.__get_solver_instnace_reps(solver)
                 for k in range(solver_reps):

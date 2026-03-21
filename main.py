@@ -17,6 +17,15 @@ def ants_it_estimator(params):
     return 200, 300
 Base.metadata.create_all(bind=engine)
 
+def handle_milp_solvers(cfg_milp) -> dict:
+    instances = {}
+    if cfg_milp.solver == 'all':
+        for solver_name, _ in cfg_milp.solvers.items():
+            instances = instances | {solver_name: MILPSolver(cfg_milp={'solver': solver_name})}
+        return instances
+    else:
+        return {cfg_milp['solver']: MILPSolver(cfg_milp=cfg_milp)}
+
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(cfg):
     cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
@@ -27,8 +36,9 @@ def main(cfg):
     solvers = {
         "NearestNeighbor": NearestNeighborSolver(),
         "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
-        "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
+        # "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
     }
+    solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
 
     # ------------------------
     # EXPERIMENT MODE
