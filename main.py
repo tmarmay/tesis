@@ -26,8 +26,8 @@ def main(cfg):
 
     solvers = {
         "NearestNeighbor": NearestNeighborSolver(),
-        # "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
-        # "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
+        "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
+        "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
     }
 
     # ------------------------
