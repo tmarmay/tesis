@@ -1,3 +1,5 @@
+from helpers.pretty_print import warning_pp, info_pp
+
 class SolutionChecker:
     """
     Verifica la correctitud de una solución para el MD-VRP-TW.
@@ -6,7 +8,7 @@ class SolutionChecker:
     def __init__(self, insta):
         self.insta = insta
 
-    def check(self, solution: dict) -> bool:
+    def check(self, solution: dict, solver: str) -> bool:
         """
         Verifica que la solución sea factible respecto a todas las restricciones.
 
@@ -25,8 +27,12 @@ class SolutionChecker:
             self._check_valid_vehicle_keys,
             self._check_no_intra_route_duplicates
         ]
-        return all(check(solution) for check in checks)
 
+        status = all(check(solution) for check in checks)
+        if status:
+            info_pp(f"[SolutionChecker]: valid solution for solver: {solver}")
+        return status
+    
     # -- Restricción: salida del depot y regreso al return (constraints 34, 36) --
 
     def _check_depot_and_return(self, solution: dict) -> bool:
@@ -35,11 +41,11 @@ class SolutionChecker:
             depot = self.insta.DEPOTS[v]
             ret = self.insta.RETURNS_milp[v]
             if route[0] != depot:
-                print(f"[FAIL] constraint_34 - Vehículo {k}: la ruta no comienza en su depot "
+                warning_pp(f"[FAIL] constraint_34 - Vehículo {k}: la ruta no comienza en su depot "
                       f"(esperado {depot}, encontrado {route[0]}).")
                 return False
             if route[-1] != ret:
-                print(f"[FAIL] constraint_36 - Vehículo {k}: la ruta no termina en su return "
+                warning_pp(f"[FAIL] constraint_36 - Vehículo {k}: la ruta no termina en su return "
                       f"(esperado {ret}, encontrado {route[-1]}).")
                 return False
         return True
@@ -61,14 +67,14 @@ class SolutionChecker:
             missing = customers_set - visited_set
             extra = visited_set - customers_set
             if missing:
-                print(f"[FAIL] constraint_32 - Clientes no visitados: {missing}.")
+                warning_pp(f"[FAIL] constraint_32 - Clientes no visitados: {missing}.")
             if extra:
-                print(f"[FAIL] constraint_32 - Nodos no válidos visitados como clientes: {extra}.")
+                warning_pp(f"[FAIL] constraint_32 - Nodos no válidos visitados como clientes: {extra}.")
             return False
 
         if len(visited) != len(visited_set):
             duplicates = [n for n in visited_set if visited.count(n) > 1]
-            print(f"[FAIL] constraint_32 - Clientes visitados más de una vez: {duplicates}.")
+            warning_pp(f"[FAIL] constraint_32 - Clientes visitados más de una vez: {duplicates}.")
             return False
 
         return True
@@ -84,7 +90,7 @@ class SolutionChecker:
                 if i in self.insta.C
             )
             if load > self.insta.Q[v]:
-                print(f"[FAIL] constraint_33 - Vehículo {k}: capacidad excedida "
+                warning_pp(f"[FAIL] constraint_33 - Vehículo {k}: capacidad excedida "
                     f"(carga={load}, Q[{v}]={self.insta.Q[v]}).")
                 return False
         return True
@@ -103,7 +109,7 @@ class SolutionChecker:
 
                 # Violación de la ventana superior (s_bounds upper)
                 if arrival > self.insta.li[j]:
-                    print(f"[FAIL] constraint_37/s_bounds - Vehículo {k}: llegada al nodo {j} "
+                    warning_pp(f"[FAIL] constraint_37/s_bounds - Vehículo {k}: llegada al nodo {j} "
                           f"en t={arrival:.2f} excede li[{j}]={self.insta.li[j]}.")
                     return False
 
@@ -124,7 +130,7 @@ class SolutionChecker:
 
         invalid = solution_keys - valid_keys
         if invalid:
-            print(f"[FAIL] vehicle_keys - Índices de vehículo inválidos: {invalid} "
+            warning_pp(f"[FAIL] vehicle_keys - Índices de vehículo inválidos: {invalid} "
                 f"(válidos: {range(self.insta.C[-1] + 1, self.insta.C[-1] + self.insta.V)}).")
             return False
         return True
@@ -137,7 +143,7 @@ class SolutionChecker:
             seen = set()
             for node in customers_in_route:
                 if node in seen:
-                    print(f"[FAIL] intra_route_duplicate - Vehículo {k}: "
+                    warning_pp(f"[FAIL] intra_route_duplicate - Vehículo {k}: "
                         f"el cliente {node} aparece más de una vez en su ruta.")
                     return False
                 seen.add(node)
