@@ -4,6 +4,7 @@ defaults:
   - solvers/aco: aco
   - solvers/milp: milp
   - experiments: experiment
+  - execution: execution
   - _self_
 
 # Overwrite
