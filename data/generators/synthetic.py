@@ -144,7 +144,7 @@ class SyntheticGenerator:
             ei=ei,
             li=li,
             F=[self.vehicle_penalty for _ in range(V)],
-            demands=[self.customer_demand for _ in range(n)],
+            demands=[1 for _ in range(n)], #[self.customer_demand for _ in range(n)] just for now
             Q=self.capacity,
         )
         self._validate_instance(instance=pi, verbose=True)
