@@ -133,7 +133,7 @@ with initialize_config_dir(config_dir=os.path.abspath("conf"), version_base="1.3
 from data.generators.synthetic import SyntheticGenerator
 from helpers.io import save_instance_as_json
 
-gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
+gen = SyntheticGenerator(cfg_experiment=cfg.execution, cfg_generator=cfg.generator)
 pi = gen.generate()
 save_instance_as_json(pi, "single-execution-example.json")
 ```
