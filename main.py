@@ -15,7 +15,6 @@ def ants_it_estimator(params):
     if params['num_customers'] <= 50:
         return 100,100
     return 200, 300
-Base.metadata.create_all(bind=engine)
 
 def handle_milp_solvers(cfg_milp) -> dict:
     instances = {}
@@ -26,43 +25,65 @@ def handle_milp_solvers(cfg_milp) -> dict:
     else:
         return {cfg_milp['solver']: MILPSolver(cfg_milp=cfg_milp)}
 
+Base.metadata.create_all(bind=engine)
+
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(cfg):
-    cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
-    ants, it = ants_it_estimator(cfg.experiments)
-    cfg.solvers.aco['num_ants'] = ants
-    cfg.solvers.aco['num_iter'] = it
-
-    solvers = {
-        "NearestNeighbor": NearestNeighborSolver(),
-        "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
-        # "MILP": MILPSolver(cfg_milp=cfg.solvers.milp)
-    }
-    solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
-
+    mode = cfg.mode['mode']
     # ------------------------
-    # EXPERIMENT MODE
+    # SIMULATION MODE
     # ------------------------
-    if cfg.mode['mode'] == "simulation":
+    if mode == "simulation":
         from data.generators.synthetic import SyntheticGenerator
         from experiments.experiment import Experiment
         from experiments.runner import ExperimentRunner
+
+        cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
+        ants, it = ants_it_estimator(cfg.experiments)
+        cfg.solvers.aco['num_ants'] = ants
+        cfg.solvers.aco['num_iter'] = it
+        solvers = {
+            "NearestNeighbor": NearestNeighborSolver(),
+            "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
+        }
+        solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
 
         gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
         exp = Experiment(name=cfg.experiments['name'], generator=gen, num_instances=cfg.experiments['num_instances'])
         runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'])
         runner.run()
         return
-    # ------------------------
-    # NORMAL EXECUTION
-    # ------------------------
-    # Acá va tu código normal:
-    # simulaciones, solvers, etc.
-    # print("Running normal simulation...")
 
-    #print help
-    # from tests.test_capacity_demand import test_sufficient_capacity
-    # test_sufficient_capacity()
+    # ------------------------
+    # EXECUTION MODE
+    # ------------------------
+    if mode == "execution":
+        from execution.runner import ExecutionRunner
+        from datetime import date
+
+        cfg.execution['timeout'] = timeout_estimator(cfg.execution)
+        ants, it = ants_it_estimator(cfg.execution)
+        cfg.solvers.aco['num_ants'] = ants
+        cfg.solvers.aco['num_iter'] = it
+        solvers = {
+            "NearestNeighbor": NearestNeighborSolver(),
+            "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
+        }
+        solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
+
+        instance = None
+        if cfg.execution['source_type'] == 'json':
+            from helpers.io import load_instance_from_json
+            instance = load_instance_from_json(cfg.execution.source)
+        elif cfg.execution['source_type'] == 'POST':
+            pass # not implemented yet
+        else:
+            return
+
+        execution_id = f"C{instance['CUSTOMERS']}_V{instance['V']}_{date.today().strftime('%Y%m%d')}"
+        runner = ExecutionRunner(instance=instance, cfg=cfg, solvers=solvers, id=execution_id)
+        runner.run()
+        return
 
 if __name__ == "__main__":
     main()
