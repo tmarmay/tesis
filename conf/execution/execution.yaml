@@ -1,0 +1,24 @@
+# Values come from analysis/milp.solvers.ipynb
+runtime_prediction:
+  a: 0.00023
+  alpha: 2.59
+  beta: 2.41
+  safety_factor: 0.002
+
+strategy: sequential    # sequential | parallel (parallel not yet implemented)
+callback_url: null      # reserved for future FastAPI/webhook integration
+solver: all
+source_type: json       # json | request
+source: /Users/tomasmarmay/Documents/famaf/tesis/single-execution-example.json
+
+num_customers: 10
+num_vehicles: 5
+capacity: [100]
+vehicle_penalty: 0
+customer_demand: 1
+seed: 42
+num_instances: 1
+instance_reps: 10
+timeout: 0
+name: execution1
+
