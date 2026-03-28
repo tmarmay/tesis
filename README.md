@@ -118,6 +118,28 @@ Esta capa desacopla completamente:
 
 ---
 
+### Execution
+
+Para correr un sola simulacion especifica hay dos modos, via lectura json o via post. Para no tener que generar una instancia a mano, se puede usar el generador de la siguiente forma:
+
+```bash
+ipython
+from hydra import compose, initialize_config_dir
+import os
+
+with initialize_config_dir(config_dir=os.path.abspath("conf"), version_base="1.3"):
+    cfg = compose(config_name="config", overrides=["mode=simulation"])
+  
+from data.generators.synthetic import SyntheticGenerator
+from helpers.io import save_instance_as_json
+
+gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
+pi = gen.generate()
+save_instance_as_json(pi, "single-execution-example.json")
+```
+
+---
+
 ### data/
 
 Contiene **instancias del problema**, no código algorítmico.
