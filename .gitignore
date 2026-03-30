@@ -4,3 +4,4 @@ env/*
 outputs/*
 multirun/
 .env
+single-execution-example.json
