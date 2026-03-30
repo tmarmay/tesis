@@ -62,7 +62,7 @@ class MILPSolver(BaseSolver):
 
     #Restriccion de tiempo 
     def constraint_37_ub(self, model, k, i, j):
-        if i == j or j == self.insta.RETURNS_milp[k]:
+        if i == j:
             return pyo.Constraint.Skip
         Mij = self.insta.li[i] + self.insta.tij[i][j] - self.insta.ei[j]  # Big-M
         return model.s[k,i] + self.insta.tij[i][j] - Mij * (1 - model.x[k,i,j]) <= model.s[k,j]
