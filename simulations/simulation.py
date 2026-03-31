@@ -4,17 +4,19 @@ from solvers.base_solver import BaseSolver
 from models.problem_instance import ProblemInstance
 from validators.solution_validator import SolutionChecker
 
+from multiprocessing import Process, Queue
 from typing import Optional
 from time import time
-import signal
 import numpy as np
 
-class TimeoutException(Exception):
-    pass
 
+def _run_solver(solver, instance, queue: Queue) -> None:
+    try:
+        solution = solver.solve(instance)
+        queue.put(('ok', solution))
+    except Exception as e:
+        queue.put(('error', str(e)))
 
-def _timeout_handler(signum, frame):
-    raise TimeoutException()
 
 class Simulation:
     """
@@ -27,7 +29,7 @@ class Simulation:
         """
         instance: ProblemInstance
         solver: solver obj
-        timeout: maximum time for the solver to solve problem instance 
+        timeout: maximum time for the solver to solve problem instance
         """
         self.instance_id = instance_id
         self.instance = instance
@@ -39,18 +41,29 @@ class Simulation:
         """
         Ejecuta todos los solvers sobre todas las instancias
         """
-        if self.timeout is not None:
-            signal.signal(signal.SIGALRM, _timeout_handler)
-            signal.alarm(int(self.timeout))
-        
         solution, runtime, errormsg = None, np.inf, ""
+        effective_timeout = self.timeout if self.timeout and self.timeout > 0 else None
         try:
             start = time()
-            solution = self.solver.solve(self.instance)
+            if effective_timeout is not None:
+                queue = Queue()
+                p = Process(target=_run_solver, args=(self.solver, self.instance, queue))
+                p.start()
+                p.join(timeout=effective_timeout)
+                if p.is_alive():
+                    p.terminate()
+                    p.join()
+                    raise TimeoutError()
+                status_msg, payload = queue.get_nowait()
+                if status_msg == 'error':
+                    raise Exception(payload)
+                solution = payload
+            else:
+                solution = self.solver.solve(self.instance)
             runtime = time() - start
             status = "finished"
 
-        except TimeoutException:
+        except TimeoutError:
             status = "timeout"
             runtime = time() - start
             warning_pp(f"Solver {self.solver.get_solver_name()} timeout")
@@ -61,8 +74,6 @@ class Simulation:
             error_pp(f"Solver {self.solver.get_solver_name()}: error {errormsg}")
 
         finally:
-            if self.timeout is not None:
-                signal.alarm(0)
             if solution is None:
                 solution = Solution(total_cost=np.inf, feasible=False, unserved_customers=self.instance.C, routes={})
 

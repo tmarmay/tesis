@@ -1,9 +1,11 @@
 from typing import Dict
 
+import httpx
+
 from models.problem_instance import ProblemInstance
 from execution.strategies.base import BaseSolverStrategy
 from storage.repository import save_result
-from helpers.pretty_print import ok_pp, info_pp
+from helpers.pretty_print import ok_pp, info_pp, error_pp
 from execution.strategies.sequential import SequentialStrategy
 from execution.strategies.parallel import ParallelStrategy
 
@@ -14,18 +16,18 @@ class ExecutionRunner:
 
     Designed to be called from:
     - CLI (execution mode in main.py)
-    - FastAPI endpoint (future): wrap run() in an async task, pass callback_url
-      to notify shelter-platform when each solver finishes.
+    - FastAPI endpoint: run() is dispatched as a BackgroundTask; callback_url
+      receives a POST with each solver result as it finishes.
     """
-    def __init__(self, *, instance: dict, cfg: dict, solvers: Dict, id: str):
+    def __init__(self, *, instance: dict, cfg: dict, solvers: Dict, id: str, callback_url_override: str | None = None):
         self.instance = self._load_instance_form_dict(instance)
         self.execution_id = id
         self.solvers = solvers
         self.strategy = self._get_strategy(cfg)
         self.timeout = self._get_timeout(cfg)
-        self.callback_url = self._get_callback_url(cfg)  # reserved for future FastAPI/webhook use
+        self.callback_url = callback_url_override or cfg.execution['callback_url']
 
-    def _get_callback_url(self, cfg) -> str:
+    def _get_callback_url(self, cfg) -> str | None:
         return cfg.execution['callback_url']
 
     def _get_timeout(self, cfg) -> int:
@@ -67,13 +69,18 @@ class ExecutionRunner:
         )
 
         for result in results:
-            save_result(
-                experiment_id="execution",
-                instance_id=self.execution_id,
-                instance_repetition=0,
-                result=result,
-            )
-            ok_pp(f"[SAVED] {self.execution_id} | {result['solver']}")
+            try:
+                save_result(
+                    experiment_id="execution",
+                    instance_id=self.execution_id,
+                    instance_repetition=0,
+                    result=result,
+                )
+                ok_pp(f"[SAVED] {self.execution_id} | {result['solver']}")
+            except Exception as e:
+                import traceback
+                error_pp(f"[DB ERROR] {self.execution_id} | {result['solver']}: {e}")
+                traceback.print_exc()
 
             if self.callback_url:
                 self._notify(result)
@@ -97,9 +104,8 @@ class ExecutionRunner:
         ]
 
     def _notify(self, result: dict) -> None:
-        # Future: POST result to callback_url when a solver finishes.
-        # This is the hook that shelter-platform uses to emit a websocket event.
-        #
-        # import httpx
-        # httpx.post(self.callback_url, json=self.export_results([result])[0])
-        pass
+        payload = self.results_2_json([result])[0]
+        try:
+            httpx.post(self.callback_url, json=payload, timeout=10)
+        except Exception as e:
+            error_pp(f"[CALLBACK] Failed to notify {self.callback_url}: {e}")

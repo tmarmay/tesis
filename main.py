@@ -76,7 +76,11 @@ def main(cfg):
             from helpers.io import load_instance_from_json
             instance = load_instance_from_json(cfg.execution.source)
         elif cfg.execution['source_type'] == 'POST':
-            pass # not implemented yet
+            import uvicorn
+            from api.app import create_app
+            app = create_app(cfg=cfg, solvers=solvers)
+            uvicorn.run(app, host="0.0.0.0", port=8000)
+            return
         else:
             return
 
