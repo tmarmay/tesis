@@ -88,6 +88,13 @@ class ExecutionRunner:
 
     def results_2_json(self, results: list[dict]) -> list[dict]:
         """Returns results formatted for JSON export (e.g. HTTP response or file)."""
+        def _sanitize(value):
+            """Replace non-finite floats with None for JSON compliance."""
+            import math
+            if isinstance(value, float) and not math.isfinite(value):
+                return None
+            return value
+
         return [
             {
                 "execution_id": self.execution_id,
@@ -95,10 +102,11 @@ class ExecutionRunner:
                 "status": r["status"],
                 "feasible": r.get("feasible"),
                 "valid": r.get("valid"),
-                "cost": r["cost"],
-                "runtime": r["runtime"],
+                "cost": _sanitize(r["cost"]),
+                "runtime": _sanitize(r["runtime"]),
                 "routes": r.get("routes"),
                 "not_visited": r.get("not_visited"),
+                "error": r.get("error"),
             }
             for r in results
         ]

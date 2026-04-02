@@ -13,6 +13,7 @@ class SolveRequest(BaseModel):
     F: list[float]
     Q: list[float]
     demands: list[float]
+    solver: str
     callback_url: str | None = None  # overrides execution.yaml if provided
 
 
