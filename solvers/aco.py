@@ -100,7 +100,6 @@ class ACOSolver(BaseSolver):
 
                 # ventana de tiempo no factible
                 if arrival > li[j]:
-                    unsolved_clients.append(j)
                     continue
 
                 # esperar si llegamos antes
@@ -118,6 +117,7 @@ class ACOSolver(BaseSolver):
 
             # si no hay factibles → forzar retorno
             if mejor_j is None:
+                unsolved_clients.extend(pendientes)
                 break
 
             # agregar cliente a la ruta
