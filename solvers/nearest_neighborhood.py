@@ -141,7 +141,7 @@ class NearestNeighborSolver(BaseSolver):
 
                 if not candidatos:
                     # No se pueden atender todos los clientes asignados
-                    return None, float("inf"), no_visitados
+                    return None, float("inf"), list(no_visitados)
 
                 # elegir el más cercano (menor tiempo de viaje)
                 c_next, travel_time, inicio_servicio = min(
@@ -157,7 +157,7 @@ class NearestNeighborSolver(BaseSolver):
             llegada_return = tiempo_actual + travel_back
 
             if llegada_return > instance.li[ret]:
-                return None, float("inf"), no_visitados
+                return None, float("inf"), list(no_visitados)
 
             # cerrar ruta en el return
             ruta.append(ret)
