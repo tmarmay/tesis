@@ -4,7 +4,7 @@ import httpx
 
 from models.problem_instance import ProblemInstance
 from execution.strategies.base import BaseSolverStrategy
-from storage.repository import save_result
+from storage.repository import save_result, already_run
 from helpers.pretty_print import ok_pp, info_pp, error_pp
 from execution.strategies.sequential import SequentialStrategy
 from execution.strategies.parallel import ParallelStrategy
@@ -59,12 +59,22 @@ class ExecutionRunner:
                                tij=tij, ei=ei, li=li, F=F, Q=Q, demands=demands)
 
 
+    def _already_run(self, solver_name: str) -> bool:
+        return already_run(experiment_id="execution", instance_id=self.execution_id, solver=solver_name)
+
     def run(self) -> list[dict]:
         info_pp(f"Starting execution: {self.execution_id}")
 
+        pending_solvers = {}
+        for name, solver in self.solvers.items():
+            if self._already_run(solver.get_solver_name()):
+                ok_pp(f"[SKIP] {self.execution_id} - {solver.get_solver_name()} (already run)")
+            else:
+                pending_solvers[name] = solver
+
         results = self.strategy.run(
             instance=self.instance,
-            solvers=self.solvers,
+            solvers=pending_solvers,
             timeout=self.timeout,
         )
 
