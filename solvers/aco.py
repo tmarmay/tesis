@@ -143,7 +143,6 @@ class ACOSolver(BaseSolver):
         #Un vehículo v = una subruta dentro de la solución de la hormiga.
 
         # =============================
-        
         tau_assign, best_route, best_cost = self.phase_one(instance)
         mejor_costo_global = float("inf")
         mejor_asignacion_global = None
@@ -216,7 +215,9 @@ class ACOSolver(BaseSolver):
                 d = asign_mejor[c]
                 tau_assign[d][c] += delta
 
-        return mejor_rutas_global, mejor_costo_global, unsolved_clientes
+        if mejor_rutas_global is not None:
+            return mejor_rutas_global, mejor_costo_global, []
+        return None, float("inf"), unsolved_clientes
                 
     def solve(self, instance: ProblemInstance):
         rutas, costo, no_visitados = self.aco(instance)
