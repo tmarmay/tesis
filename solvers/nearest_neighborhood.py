@@ -143,9 +143,9 @@ class NearestNeighborSolver(BaseSolver):
                     # No se pueden atender todos los clientes asignados
                     return None, float("inf"), list(no_visitados)
 
-                # elegir el más cercano (menor tiempo de viaje)
+                # elegir menor service time
                 c_next, travel_time, inicio_servicio = min(
-                    candidatos, key=lambda x: x[1] #CREO QUE SERIA MEJOR ATENDERLOS SEGUN EL SERVICE TIME
+                    candidatos, key=lambda x: x[2]
                 )
 
                 ruta.append(c_next)
