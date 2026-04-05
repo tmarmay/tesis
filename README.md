@@ -120,23 +120,8 @@ Esta capa desacopla completamente:
 
 ### Execution
 
-Para correr un sola simulacion especifica hay dos modos, via lectura json o via post. Para no tener que generar una instancia a mano, se puede usar el generador de la siguiente forma:
-
-```bash
-ipython
-from hydra import compose, initialize_config_dir
-import os
-
-with initialize_config_dir(config_dir=os.path.abspath("conf"), version_base="1.3"):
-    cfg = compose(config_name="config", overrides=["mode=simulation"])
-  
-from data.generators.synthetic import SyntheticGenerator
-from helpers.io import save_instance_as_json
-
-gen = SyntheticGenerator(cfg_experiment=cfg.execution, cfg_generator=cfg.generator)
-pi = gen.generate()
-save_instance_as_json(pi, "single-execution-example.json")
-```
+Para correr una sola instancia específica hay dos modos: via JSON o via POST (API).  
+Ver instrucciones detalladas en [docs/RUNNING_FROM_JSON.md](docs/RUNNING_FROM_JSON.md).
 
 ---
 
@@ -225,15 +210,7 @@ pip install gurobipy
 
 ### Tests
 
-```bash
-python3 main.py
-
-python -m pytest # Run the full test suite using pytest
-python3 -m pytest tests/<file>.py # Run tests from single file
-python3 -m pytest tests/<file>.py::<test_fun> # Run single test from single file
-
-# example: python3 -m pytest tests/test_cost.py::test_cost_sum
-```
+Ver [docs/TESTS.md](docs/TESTS.md).
 
 ### Experimentos
 
