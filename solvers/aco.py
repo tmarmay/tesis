@@ -105,12 +105,9 @@ class ACOSolver(BaseSolver):
                 # esperar si llegamos antes
                 start_service = max(arrival, ei[j])
 
-                # costo incremental según el paper
-                incremento = travel
-
-                # elegir el mejor factible
-                if incremento < mejor_incremento:
-                    mejor_incremento = incremento
+                # elegir el más urgente (menor inicio de servicio)
+                if start_service < mejor_incremento:
+                    mejor_incremento = start_service
                     mejor_j = j
                     mejor_arrival = arrival
                     mejor_start_service = start_service
