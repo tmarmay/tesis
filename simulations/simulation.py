@@ -70,6 +70,7 @@ class Simulation:
 
         except Exception as e:
             status = "error"
+            runtime = time() - start
             errormsg = str(e)
             error_pp(f"Solver {self.solver.get_solver_name()}: error {errormsg}")
 
