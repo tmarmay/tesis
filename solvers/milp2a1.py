@@ -104,7 +104,7 @@ class MILPSolver(BaseSolver):
         model.aux_link_x_u = pyo.Constraint(range(instance.V), rule=self.aux1)
         
         # Resolver el modelo
-        solver = pyo.SolverFactory('highs')
+        solver = pyo.SolverFactory(self.solver)
         results = solver.solve(model, tee=False)
 
         # ===============================
