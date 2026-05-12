@@ -190,4 +190,4 @@ class NearestNeighborSolver(BaseSolver):
         return True
 
     def get_solver_name(self) -> str:
-        return "NearestNeighbor"
+        return "TWNN"
