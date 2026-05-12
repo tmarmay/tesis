@@ -7,9 +7,11 @@ class ProblemInstance:
     """
 
     def __init__(self, name: str, V: int, CUSTOMERS: int, cost_matrix: list,
-                tij: list, ei: list, li: list, F: list, demands: list, Q: list):
+                tij: list, ei: list, li: list, F: list, demands: list, Q: list,
+                reference_cost: float = None):
         
         self.name = name
+        self.reference_cost = reference_cost
 
         self.V = V
         self.CUSTOMERS = CUSTOMERS

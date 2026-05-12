@@ -76,6 +76,10 @@ class SyntheticGenerator:
 
         # T_MAX calculado sobre las rutas reales
         self._generate_tmax(tij=tij, routes=routes, DEPOTS=DEPOTS, RETURNS=RETURNS)
+        # Guardamos la solución constructiva para calcular real_cost en generate()
+        self._reference_routes = routes
+        self._reference_depots = DEPOTS
+        self._reference_returns = RETURNS
 
         ei = [0] * TW_DIM
         li = [self.T_MAX] * TW_DIM
@@ -135,6 +139,15 @@ class SyntheticGenerator:
 
         ei, li = self._generate_feasible_time_windows(tij=tij)
 
+        real_cost = 0
+        for v in range(V):
+            if not self._reference_routes[v]:
+                continue
+            route = [self._reference_depots[v]] + self._reference_routes[v] + [self._reference_returns[v]]
+            for a, b in zip(route[:-1], route[1:]):
+                real_cost += int(cost_matrix[a][b])
+            real_cost += self.vehicle_penalty
+
         pi = ProblemInstance(
             name=f"synthetic_n{n}_v{V}_seed{self.seed}",
             V=V,
@@ -144,8 +157,9 @@ class SyntheticGenerator:
             ei=ei,
             li=li,
             F=[self.vehicle_penalty for _ in range(V)],
-            demands=[1 for _ in range(n)], #[self.customer_demand for _ in range(n)] just for now
+            demands=[1 for _ in range(n)],
             Q=self.capacity,
+            reference_cost=real_cost,
         )
         self._validate_instance(instance=pi, verbose=True)
         return pi 
