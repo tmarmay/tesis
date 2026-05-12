@@ -212,6 +212,8 @@ class ACOSolver(BaseSolver):
                 d = asign_mejor[c]
                 tau_assign[d][c] += delta
 
+            tau_assign = np.clip(tau_assign, self.TAU_MIN, self.TAU_MAX)
+
         if mejor_rutas_global is not None:
             return mejor_rutas_global, mejor_costo_global, []
         return None, float("inf"), unsolved_clientes
@@ -219,6 +221,9 @@ class ACOSolver(BaseSolver):
     def solve(self, instance: ProblemInstance):
         rutas, costo, no_visitados = self.aco(instance)
         return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
+
+    def get_run_params(self) -> dict:
+        return {"ants": self.NUM_ANTS, "it": self.NUM_ITER}
 
     def is_stochastic(self) -> bool:
         return True

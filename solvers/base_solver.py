@@ -10,3 +10,6 @@ class BaseSolver:
     
     def solve(self, instance) -> Solution:
         raise NotImplementedError
+
+    def get_run_params(self) -> dict:
+        return {}
