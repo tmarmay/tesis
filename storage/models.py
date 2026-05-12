@@ -7,7 +7,7 @@ class RunResult(Base):
     __tablename__ = "run_results"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    
+
     experiment_id = Column(String, index=True)
     instance_id = Column(String, index=True)
     instance_repetition = Column(Integer)
@@ -18,7 +18,15 @@ class RunResult(Base):
     valid = Column(Boolean, default=False)
 
     cost = Column(Float)
+    reference_cost = Column(Float, nullable=True)
     runtime = Column(Float)
+
+    c = Column(Integer, nullable=True)
+    v = Column(Integer, nullable=True)
+    ram_usage = Column(Float, nullable=True)   # MB
+    cpu_usage = Column(Float, nullable=True)   # percent (0-100)
+    ants = Column(Integer, nullable=True)
+    it = Column(Integer, nullable=True)
 
     routes = Column(JSON)
     not_visited = Column(JSON)
