@@ -1,17 +1,20 @@
 # Core
 num_ants: 0       # in main.py
 num_iter: 0       # in main.py
-alpha: 1.9      # influencia de la feromona
-beta: 1.3       # influencia de la heurística (1/distancia)
-rho: 0.4        # tasa de evaporación
+alpha: 0.785      # influencia de la feromona
+beta: 0.774       # influencia de la heurística (1/distancia)
+rho: 0.185        # tasa de evaporación
 
 #Primary Parameters
 lambda: 5
-#gamma y penalty no se usan por el memento
-gamma: 2        # penaliza vehículos con mucha capacidad
+gamma: 2        # exponente del savings measure de Clarke-Wright (v2)
 penalty: 0
 
 # Secondary Parameters
-phe: 100         # cantidad de feromona depositada
-tau_max: 10
-tau_min: 1e-4
+phe: 97         # cantidad de feromona depositada
+tau_max: 15
+tau_min: 0.002
+
+# Routing (v2)
+w_urgency: 1.473   # peso de urgencia vs distancia en criterio de ruteo
+q0: 0.815          # prob. de explotación ACS (1-q0 = exploración)
