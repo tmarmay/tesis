@@ -1,5 +1,6 @@
 from solvers.nearest_neighborhood import NearestNeighborSolver
 from solvers.aco import ACOSolver
+from solvers.aco_v2 import ACOSolverV2
 from solvers.milp2a1 import MILPSolver
 
 from storage.db import engine
@@ -12,11 +13,13 @@ def timeout_estimator(params):
     return int(pred_params['safety_factor'] * (params['num_customers'] ** pred_params['alpha']) * (params['num_vehicles'] ** pred_params['beta']))
 
 def ants_it_estimator(params):
-    if params['num_customers'] <= 50:
-        return 100,100
-    return 200, 300
+    return 28, 0
+    if params['num_customers'] <= 25:
+       return 100,300
+    return 100, 300
 
 def handle_milp_solvers(cfg_milp) -> dict:
+    return {'gurobi': MILPSolver(cfg_milp={'solver': 'gurobi'})}
     instances = {}
     if cfg_milp.solver == 'all':
         for solver_name, _ in cfg_milp.solvers.items():
@@ -38,19 +41,20 @@ def main(cfg):
         from experiments.experiment import Experiment
         from experiments.runner import ExperimentRunner
 
-        cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
+        #cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
         ants, it = ants_it_estimator(cfg.experiments)
         cfg.solvers.aco['num_ants'] = ants
         cfg.solvers.aco['num_iter'] = it
         solvers = {
-            "NearestNeighbor": NearestNeighborSolver(),
-            "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
+            #"NearestNeighbor": NearestNeighborSolver(),
+            #"ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
+            #"ACOv2": ACOSolverV2(cfg_aco=cfg.solvers.aco),
         }
         solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
 
         gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
         exp = Experiment(name=cfg.experiments['name'], generator=gen, num_instances=cfg.experiments['num_instances'])
-        runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'])
+        runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'], parallel_reps=cfg.experiments.get('parallel_reps', False), memory_limit_mb=cfg.experiments.get('memory_limit_mb'), reserved_cpus=cfg.experiments.get('reserved_cpus', 2))
         runner.run()
         return
 

@@ -15,4 +15,7 @@ seed: 42
 num_instances: 5
 instance_reps: 10
 timeout: 900
+parallel_reps: true
+reserved_cpus: 2
+memory_limit_mb: 10000
 name: test-timeout
