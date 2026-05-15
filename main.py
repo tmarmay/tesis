@@ -7,10 +7,9 @@ from storage.db import engine
 from storage.models import Base
 import hydra
 
-#ver como mejorar esto
-def timeout_estimator(params):
-    pred_params = params['runtime_prediction']
-    return int(pred_params['safety_factor'] * (params['num_customers'] ** pred_params['alpha']) * (params['num_vehicles'] ** pred_params['beta']))
+# Seconds reserved for the MILP process to extract and return its solution
+# after the solver hits its internal time limit, before the OS kills the subprocess.
+_MILP_TIMEOUT_MARGIN = 180
 
 def ants_it_estimator(params):
     return 28, 0
@@ -18,15 +17,14 @@ def ants_it_estimator(params):
        return 100,300
     return 100, 300
 
-def handle_milp_solvers(cfg_milp) -> dict:
-    return {'gurobi': MILPSolver(cfg_milp={'solver': 'gurobi'})}
+def handle_milp_solvers(cfg_milp, timeout=None) -> dict:
     instances = {}
     if cfg_milp.solver == 'all':
         for solver_name, _ in cfg_milp.solvers.items():
-            instances = instances | {solver_name: MILPSolver(cfg_milp={'solver': solver_name})}
+            instances[solver_name] = MILPSolver(cfg_milp={'solver': solver_name, 'time_limit': timeout})
         return instances
     else:
-        return {cfg_milp['solver']: MILPSolver(cfg_milp=cfg_milp)}
+        return {cfg_milp.solver: MILPSolver(cfg_milp={'solver': cfg_milp.solver, 'time_limit': timeout})}
 
 Base.metadata.create_all(bind=engine)
 
@@ -41,7 +39,6 @@ def main(cfg):
         from experiments.experiment import Experiment
         from experiments.runner import ExperimentRunner
 
-        #cfg.experiments['timeout'] = timeout_estimator(cfg.experiments)
         ants, it = ants_it_estimator(cfg.experiments)
         cfg.solvers.aco['num_ants'] = ants
         cfg.solvers.aco['num_iter'] = it
@@ -50,11 +47,11 @@ def main(cfg):
             #"ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
             #"ACOv2": ACOSolverV2(cfg_aco=cfg.solvers.aco),
         }
-        solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
+        solvers = solvers | handle_milp_solvers(cfg.solvers.milp, timeout=cfg.experiments['timeout'])
 
         gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
         exp = Experiment(name=cfg.experiments['name'], generator=gen, num_instances=cfg.experiments['num_instances'])
-        runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'], parallel_reps=cfg.experiments.get('parallel_reps', False), memory_limit_mb=cfg.experiments.get('memory_limit_mb'), reserved_cpus=cfg.experiments.get('reserved_cpus', 2))
+        runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'] + _MILP_TIMEOUT_MARGIN, parallel_reps=cfg.experiments.get('parallel_reps', False), memory_limit_mb=cfg.experiments.get('memory_limit_mb'), reserved_cpus=cfg.experiments.get('reserved_cpus', 2))
         runner.run()
         return
 
@@ -65,7 +62,8 @@ def main(cfg):
         from execution.runner import ExecutionRunner
         from datetime import date
 
-        cfg.execution['timeout'] = timeout_estimator(cfg.execution)
+        base_timeout = cfg.execution['timeout']
+        cfg.execution['timeout'] = base_timeout + _MILP_TIMEOUT_MARGIN
         ants, it = ants_it_estimator(cfg.execution)
         cfg.solvers.aco['num_ants'] = ants
         cfg.solvers.aco['num_iter'] = it
@@ -73,7 +71,7 @@ def main(cfg):
             "NearestNeighbor": NearestNeighborSolver(),
             "ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
         }
-        solvers = solvers | handle_milp_solvers(cfg.solvers.milp)
+        solvers = solvers | handle_milp_solvers(cfg.solvers.milp, timeout=base_timeout)
 
         instance = None
         if cfg.execution['source_type'] == 'json':
