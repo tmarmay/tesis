@@ -22,19 +22,19 @@ _MP_CTX = multiprocessing.get_context('spawn')
 def _rep_worker(solver, instance, conn) -> None:
     """Runs in a subprocess. Measures CPU/RAM, builds the full result dict."""
     proc = psutil.Process(os.getpid())
-    proc.cpu_percent(interval=None)  # initialize CPU counter
+    proc.cpu_percent()  # baseline call — first call always returns 0.0, must be ignored
 
     solution, status, errormsg = None, "error", ""
     start = time()
     try:
         solution = solver.solve(instance)
-        status = "finished"
+        status = "timeout" if getattr(solution, 'timed_out', False) else "finished"
     except Exception as e:
         status = "error"
         errormsg = str(e)
     finally:
         runtime = time() - start
-        cpu_usage = proc.cpu_percent(interval=None)
+        cpu_usage = proc.cpu_percent(interval=None)  # measures CPU since baseline call
         ram_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024  # KB → MB
 
         if solution is None:
