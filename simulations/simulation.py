@@ -66,7 +66,8 @@ def _rep_worker(solver, instance, conn) -> None:
         conn.close()
 
 
-def _dead_result(solver, instance, status: str, runtime: float, error: str = "") -> dict:
+def _dead_result(solver, instance, status: str, runtime: float, error: str = "",
+                 cpu_usage: Optional[float] = None, ram_usage: Optional[float] = None) -> dict:
     return {
         "solver": solver.get_solver_name(),
         "cost": np.inf,
@@ -75,8 +76,8 @@ def _dead_result(solver, instance, status: str, runtime: float, error: str = "")
         "valid": False,
         "status": status,
         "runtime": runtime,
-        "cpu_usage": None,
-        "ram_usage": None,
+        "cpu_usage": cpu_usage,
+        "ram_usage": ram_usage,
         "c": instance.CUSTOMERS,
         "v": instance.V,
         "routes": None,
@@ -96,13 +97,17 @@ def run_rep(solver, instance, timeout: Optional[int],
     child_conn.close()  # parent doesn't write, close its copy of the write end
 
     oom_triggered = threading.Event()
+    oom_metrics: dict = {}
 
     def _memory_watchdog():
         try:
             proc = psutil.Process(p.pid)
+            proc.cpu_percent()  # baseline call before solver work begins
             while p.is_alive():
                 rss_mb = proc.memory_info().rss / 1024 / 1024
                 if rss_mb > memory_limit_mb:
+                    oom_metrics["ram_usage"] = rss_mb
+                    oom_metrics["cpu_usage"] = proc.cpu_percent(interval=None)
                     p.kill()
                     oom_triggered.set()
                     return
@@ -120,7 +125,9 @@ def run_rep(solver, instance, timeout: Optional[int],
         parent_conn.close()
         error_pp(f"Solver {solver.get_solver_name()}: killed (RAM limit {memory_limit_mb}MB exceeded)")
         return _dead_result(solver, instance, "error", time() - start,
-                            f"RAM limit exceeded ({memory_limit_mb}MB)")
+                            f"RAM limit exceeded ({memory_limit_mb}MB)",
+                            cpu_usage=oom_metrics.get("cpu_usage"),
+                            ram_usage=oom_metrics.get("ram_usage"))
 
     if p.is_alive():
         p.terminate()
