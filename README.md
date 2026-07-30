@@ -4,11 +4,61 @@
 
 ### Proyecto: Resolución del MD-VRP-TW
 
-Este proyecto implementa y compara distintos enfoques para resolver el **Problema de Ruteo de Vehículos con Múltiples Depósitos y Ventanas de Tiempo (MD-VRP-TW)**.  
+Este proyecto implementa y compara distintos enfoques para resolver el **Problema de Ruteo de Vehículos con Múltiples Depósitos y Ventanas de Tiempo (MD-VRP-TW)**.
 El objetivo es construir un **framework experimental modular**, que permita evaluar heurísticas, metaheurísticas y modelos exactos bajo instancias comunes y comparables.
 
-![architecture](src/architecture.png)
-![experiment architecture](src/experiment_architecture.png)
+### Descripción del problema
+
+El MD-VRP-TW consiste en determinar un conjunto de rutas para una flota de vehículos que:
+
+- parten desde múltiples depósitos
+- deben atender un conjunto de clientes
+- respetan ventanas de tiempo en los clientes
+- regresan a un nodo de retorno (posiblemente distinto del depósito)
+- minimizan el costo total (distancia + penalización por uso de vehículos)
+
+Cada vehículo está asociado a un depósito y, opcionalmente, a un nodo de retorno distinto.
+
+Se comparan tres enfoques: una heurística **Nearest Neighbor** (baseline), una metaheurística **ACO** (Ant Colony Optimization) y un modelo exacto **MILP**, usado como referencia óptima para instancias pequeñas.
+
+---
+
+### Dónde está cada cosa
+
+#### La tesis
+
+| Qué | Dónde |
+|---|---|
+| Documento final de la tesis | [`thesis/Tesis-Final.pdf`](thesis/Tesis-Final.pdf) |
+| Diapositivas de la defensa oral | [`thesis/presentation/`](thesis/presentation/) (`Tesis-Presentacion.pptx` y `.pdf`) |
+| Resultados de todos los experimentos | `thesis/database/run_results.sqlite` (tabla `run_results`). No está en el repo por tamaño (~190MB); se regenera con `python scripts/build_results_db.py` a partir de [`run_results.sql`](run_results.sql) |
+| Notas de preparación de la defensa | [`Tesis Presentacion/`](Tesis%20Presentacion/) (vault de Obsidian) |
+| Papers de referencia | [`papers/`](papers/) |
+
+#### El código del framework
+
+| Carpeta | Contenido |
+|---|---|
+| [`models/`](models/) | Estructuras del dominio (`ProblemInstance`, `Solution`) |
+| [`solvers/`](solvers/) | Nearest Neighbor, ACO y MILP |
+| [`simulations/`](simulations/) | Corre todos los solvers sobre todas las instancias |
+| [`execution/`](execution/) y [`api/`](api/) | Ejecución de una instancia puntual (JSON o API) |
+| [`data/`](data/) | Instancias e instancias de ejemplo (`data/instances/`) |
+| [`conf/`](conf/) | Configuración de experimentos ([Hydra](https://hydra.cc/)) |
+| [`analysis/exploratory/`](analysis/exploratory/) | Notebooks de exploración inicial de resultados |
+| [`analysis/report/`](analysis/report/) | Notebooks que generaron las figuras/tablas del informe |
+| [`main.py`](main.py) | Punto de entrada del framework |
+
+Para el detalle de cómo está armada cada una de estas carpetas, instalación, cómo correr experimentos/tests y profiling, ver **[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)**.
+
+#### Documentación adicional
+
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — instalación, arquitectura y cómo correr el proyecto
+- [docs/RUNNING_FROM_JSON.md](docs/RUNNING_FROM_JSON.md) — ejecutar una instancia puntual
+- [docs/TESTS.md](docs/TESTS.md) — tests
+- [docs/API.md](docs/API.md) — API
+- [docs/REMOTE.md](docs/REMOTE.md) — ejecución remota
+
 ---
 
 ### Pendientes
@@ -17,234 +67,3 @@ El objetivo es construir un **framework experimental modular**, que permita eval
 - [pendiente] Corro experimentos en atom
 - [pendiente] Análisis de los experimentos
 - [pendiente] Redacción tesis
-
-### Descripción del problema
-
-El MD-VRP-TW consiste en determinar un conjunto de rutas para una flota de vehículos que:
-
-- parten desde múltiples depósitos  
-- deben atender un conjunto de clientes  
-- respetan ventanas de tiempo en los clientes  
-- regresan a un nodo de retorno (posiblemente distinto del depósito)  
-- minimizan el costo total (distancia + penalización por uso de vehículos)
-
-Cada vehículo está asociado a un depósito y, opcionalmente, a un nodo de retorno distinto.
-
----
-
-### Estructura general del proyecto
-
-El proyecto está organizado por **responsabilidades**, no por algoritmos:
-```
-data/
-models/
-solvers/
-simulations/
-analysis/
-main.py
-```
-
-
-Cada carpeta cumple un rol bien definido, lo que permite extender el proyecto sin modificar código existente.
-
----
-
-### models/
-
-Contiene las **estructuras del dominio**, independientes de cualquier algoritmo.
-
-- `problem_instance.py`  
-  Representa una instancia fija del MD-VRP-TW.  
-  Incluye:
-  - clientes, depósitos y returns  
-  - matrices de costo y tiempo  
-  - ventanas de tiempo  
-  - penalización por vehículo  
-
-- `solution.py`  
-  Representa una solución producida por cualquier solver.  
-  Todas las soluciones tienen el mismo formato:
-  - rutas por vehículo  
-  - costo total  
-  - factibilidad  
-  - clientes no atendidos (si existen)  
-
-Estas clases **no contienen lógica de resolución**.
-
----
-
-### solvers/
-
-Implementa los distintos métodos de resolución.  
-Todos los solvers comparten la misma interfaz conceptual: `solve(instance: ProblemInstance) -> Solution`
-
-
-Solvers implementados:
-
-- **Nearest Neighbor (baseline)**  
-  Heurística greedy que asigna clientes y construye rutas respetando restricciones.  
-  Sirve como baseline rápida y para detectar casos borde.
-
-- **ACO (Ant Colony Optimization)**  
-  Metaheurística basada en colonias de hormigas, adaptada al MD-VRP-TW.  
-  Implementa:
-  - fase de asignación (cliente → vehículo)
-  - fase de ordenamiento de visitas
-  - actualización de feromonas  
-
-- **MILP**  
-  Modelo exacto de Programación Lineal Entera Mixta.  
-  Se utiliza como referencia óptima para instancias pequeñas y para calcular gaps.
-
-Los solvers **no imprimen resultados ni gestionan simulaciones**: solo devuelven soluciones.
-
----
-
-### simulations/
-
-Contiene la lógica experimental.
-
-- `simulation.py`  
-  Implementa la clase `Simulation`, que:
-  - recibe una lista de instancias (`ProblemInstance`)
-  - recibe una lista de solvers
-  - ejecuta todos los solvers sobre todas las instancias
-  - recolecta resultados comparables  
-
-Esta capa desacopla completamente:
-- definición del problema  
-- algoritmos de resolución  
-- análisis de resultados  
-
----
-
-### Execution
-
-Para correr una sola instancia específica hay dos modos: via JSON o via POST (API).  
-Ver instrucciones detalladas en [docs/RUNNING_FROM_JSON.md](docs/RUNNING_FROM_JSON.md).
-
----
-
-### data/
-
-Contiene **instancias del problema**, no código algorítmico.
-
-Subcarpeta clave:
-
-- `data/instances/`  
-  Instancias diseñadas manualmente para:
-  - casos borde  
-  - validación de factibilidad  
-  - debugging  
-  - ejemplos explicativos  
-
-Ejemplos de casos borde:
-- clientes imposibles de atender por ventanas de tiempo  
-- más clientes que capacidad total de vehículos  
-- costos nulos o prohibidos entre nodos  
-- retornos distintos por vehículo  
-
----
-
-### analysis/
-
-Notebooks de análisis, separados por etapa:
-
-- `analysis/exploratory/`  
-  Notebooks de exploración inicial (`research.ipynb`, `results_analysis.ipynb`, `solvers-comparison.ipynb`, `aco_hyperparameter.ipynb`, `twnn.ipynb`, `milp_solvers.ipynb`, `debug_milp_C5_V10.ipynb`).  
-  Fueron el punto de partida de los análisis y guiaron el diseño de los de `report/`; algunos referencian archivos que ya no existen (`backup.sql`, `results/old_db_results.db`) y no corren tal cual.
-
-- `analysis/report/`  
-  Notebooks que generaron las figuras y tablas que efectivamente fueron al informe de la tesis (`analysis_aco.ipynb`, `analysis_milp.ipynb`, `analysis_twnn.ipynb`, `analysis_comparison.ipynb`, `analysis_aco_hiper_params.ipynb`), junto con los datasets (`Aco.csv`, `Gurobi.csv`, `HiGHS.csv`, `Twnn.csv`, etc.) y las figuras exportadas (`figures/`).
-
----
-
-### main.py
-
-Punto de entrada del proyecto.
-
-Responsabilidades:
-- cargar instancias desde `data/`
-- inicializar solvers
-- ejecutar simulaciones
-- mostrar resultados resumidos por solver
-
-Ejemplo de salida:
-```
-Solver: NearestNeighbor
-  Costo: 38
-  Factible: True
-  Rutas: {0: [2, 0, 4], 1: [3, 1, 5]}
-
-Solver: ACO
-  Costo: 26
-  Factible: True
-  Rutas: {3: [3, 1, 0, 5]}
-
-Solver: MILP
-  Costo: 24.0
-  Factible: True
-  Rutas: {2: [2, 0, 3, 1, 4]}
-
-```
-
-### Instalacion
-
-```bash
-pip install -r req.txt
-sudo apt install python3-pytest -y
-sudo apt install sqlite3 -y
-
-sudo apt install -y postgresql postgresql-contrib
-sudo -u postgres createuser $USER # Crear usuario PostgreSQL con el mismo nombre que tu usuario de sistema
-sudo -u postgres psql -c "ALTER USER $USER WITH SUPERUSER;" # Dar permisos (opcional pero práctico para desarrollo)
-createdb results # Crear la base de datos
-psql -l # Verificar que existe
-
-# Milp Solvers
-sudo apt-get install glpk-utils -y
-sudo apt install coinor-cbc -y
-pip install highspy
-pip install gurobipy
-```
-
-### Tests
-
-Ver [docs/TESTS.md](docs/TESTS.md).
-
----
-
-### thesis/ — Entregables de la tesis
-
-Esta carpeta agrupa los archivos finales de la tesis (no son código del framework):
-
-- [`thesis/Tesis-Final.pdf`](thesis/Tesis-Final.pdf) — documento final de la tesis.
-- [`thesis/presentation/`](thesis/presentation/) — diapositivas de la defensa oral (`Tesis-Presentacion.pptx` y `.pdf`).
-- `thesis/database/run_results.sqlite` — base sqlite con todos los resultados de los experimentos (tabla `run_results`), generada a partir de [`run_results.sql`](run_results.sql) (dump de PostgreSQL que cargan las notebooks de [`analysis/essay/`](analysis/essay/)).
-  Este archivo **no está en el repo** (pesa ~190MB, supera el límite de 100MB de GitHub). Para regenerarlo localmente:
-  ```bash
-  python scripts/build_results_db.py
-  ```
-
-### Experimentos
-
-Aunque al ejecutar [main.py](main.py) el experimento se inicia automáticamente con la configuración definida en [conf](conf/)
-, también es posible modificar los parámetros según sea necesario para generar el experimento deseado de la siguiente manera utilizando [Hydra](https://hydra.cc/):
-
-```bash
-# -m producto carteciano
-python main.py -m \
-  hydra/launcher=joblib \
-  hydra.launcher.n_jobs=4 \
-  solvers.aco.alpha=0.5,1 \
-  solvers.aco.beta=3,5 \
-  solvers.aco.rho=0.2,0.5 \
-  'experiments.name=aco_a${solvers.aco.alpha}_b${solvers.aco.beta}_r${solvers.aco.rho}'
-```
-
-```bash
-pip install py-spy
-sudo env "PATH=$PATH" py-spy top --pid 19220
-py-spy record -o profile.svg -- python tu_script.py
-psql -U tmarmay -h localhost -d results
-```
