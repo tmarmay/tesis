@@ -59,11 +59,3 @@ Para el detalle de cómo está armada cada una de estas carpetas, instalación, 
 - [docs/API.md](docs/API.md) — API
 - [docs/REMOTE.md](docs/REMOTE.md) — ejecución remota
 
----
-
-### Pendientes
-
-- [pendiente] Decidir qué parámetros dejo fijos y cuales van a ser variables para las simulaciones de los 3 solvers
-- [pendiente] Corro experimentos en atom
-- [pendiente] Análisis de los experimentos
-- [pendiente] Redacción tesis
