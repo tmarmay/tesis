@@ -6,6 +6,7 @@ from solvers.milp2a1 import MILPSolver
 from storage.db import engine
 from storage.models import Base
 import hydra
+from hydra.core.hydra_config import HydraConfig
 
 # Seconds reserved for the MILP process to extract and return its solution
 # after the solver hits its internal time limit, before the OS kills the subprocess.
@@ -35,9 +36,10 @@ def main(cfg):
     # SIMULATION MODE
     # ------------------------
     if mode == "simulation":
-        from data.generators.synthetic import SyntheticGenerator
+        from data.generators.random_gen import RandomGenerator
         from experiments.experiment import Experiment
         from experiments.runner import ExperimentRunner
+        from data.generators.synthetic import SyntheticGenerator
 
         ants, it = ants_it_estimator(cfg.experiments)
         cfg.solvers.aco['num_ants'] = ants
@@ -45,11 +47,15 @@ def main(cfg):
         solvers = {
             #"NearestNeighbor": NearestNeighborSolver(),
             #"ACO": ACOSolver(cfg_aco=cfg.solvers.aco),
-            #"ACOv2": ACOSolverV2(cfg_aco=cfg.solvers.aco),
+            "ACOv2": ACOSolverV2(cfg_aco=cfg.solvers.aco),
         }
-        solvers = solvers | handle_milp_solvers(cfg.solvers.milp, timeout=cfg.experiments['timeout'])
+        #solvers = solvers | handle_milp_solvers(cfg.solvers.milp, timeout=cfg.experiments['timeout'])
 
-        gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
+        generator_name = HydraConfig.get().runtime.choices['generator']
+        if generator_name == 'random':
+            gen = RandomGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
+        elif generator_name == 'synthetic':
+            gen = SyntheticGenerator(cfg_experiment=cfg.experiments, cfg_generator=cfg.generator)
         exp = Experiment(name=cfg.experiments['name'], generator=gen, num_instances=cfg.experiments['num_instances'])
         runner = ExperimentRunner(experiment=exp, solvers=solvers, instance_reps=cfg.experiments['instance_reps'], timeout=cfg.experiments['timeout'] + _MILP_TIMEOUT_MARGIN, parallel_reps=cfg.experiments.get('parallel_reps', False), memory_limit_mb=cfg.experiments.get('memory_limit_mb'), reserved_cpus=cfg.experiments.get('reserved_cpus', 2))
         runner.run()

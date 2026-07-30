@@ -9,10 +9,18 @@ from models.solutions import Solution
 
 import pyomo.environ as pyo
 
+_TIME_LIMIT_OPTIONS = {
+    "highs":  "time_limit",
+    "cbc":    "seconds",
+    "glpk":   "tmlim",
+    "gurobi": "TimeLimit",
+}
+
 class MILPSolver(BaseSolver):
     def __init__(self, cfg_milp: dict=None):
-        self.solver = "highs" if cfg_milp is None else cfg_milp['solver']
-        
+        self.solver     = "highs" if cfg_milp is None else cfg_milp['solver']
+        self.time_limit = None    if cfg_milp is None else cfg_milp.get('time_limit')
+
     def objective_rule(self, model):
         # Costo de los viajes
         travel_cost = sum(self.insta.cost_matrix[i][j] * model.x[k, i, j] for k in range(self.insta.V) for i in range(self.insta.N) for j in range(self.insta.N))
@@ -90,6 +98,17 @@ class MILPSolver(BaseSolver):
             for i in range(instance.N):
                 model.x[k, i, i].fix(0)  # Fijar x[k, i, j] a 0 cuando i == j
 
+        # Prohibir que el vehículo k pase por el depósito de otro vehículo k'
+        for k in range(instance.V):
+            for k2 in range(instance.V):
+                if k2 == k:
+                    continue
+                for d in {instance.DEPOTS[k2], instance.RETURNS_milp[k2]}:
+                    for i in range(instance.N):
+                        if i != d:
+                            model.x[k, i, d].fix(0)
+                            model.x[k, d, i].fix(0)
+
         # Función objetivo: Minimizar los costos de los viajes
         model.obj = pyo.Objective(rule=self.objective_rule, sense=pyo.minimize)
         
@@ -105,21 +124,34 @@ class MILPSolver(BaseSolver):
         
         # Resolver el modelo
         solver = pyo.SolverFactory(self.solver)
+        if self.time_limit is not None:
+            opt_key = _TIME_LIMIT_OPTIONS.get(self.solver)
+            if opt_key:
+                solver.options[opt_key] = self.time_limit
+
         results = solver.solve(model, tee=False)
 
         # ===============================
         # EXTRAER SOLUCIÓN
         # ===============================
-        if results.solver.termination_condition != pyo.TerminationCondition.optimal:
-            from pyomo.util.infeasible import log_infeasible_constraints
-            import logging
-            logging.basicConfig(level=logging.INFO)
-            print(log_infeasible_constraints(
-                model,
-                log_expression=True,
-                log_variables=True
-            ))
-            return {}, float("inf"), list(instance.C)
+        _ok = {pyo.TerminationCondition.optimal, pyo.TerminationCondition.feasible, pyo.TerminationCondition.maxTimeLimit}
+        # CBC reports intermediateNonInteger when time limit is hit with no MIP incumbent.
+        _timed_out_no_incumbent = {pyo.TerminationCondition.intermediateNonInteger}
+        if results.solver.termination_condition not in _ok:
+            timed_out = results.solver.termination_condition in _timed_out_no_incumbent
+            return {}, float("inf"), list(instance.C), timed_out
+
+        if pyo.value(model.obj, exception=False) is None:
+            return {}, float("inf"), list(instance.C), False
+
+        # CBC/GLPK may load a trivial or LP-relaxation "solution" when no MIP
+        # incumbent was found. Detect this by checking that at least one u[k] ≈ 1.
+        timed_out = results.solver.termination_condition == pyo.TerminationCondition.maxTimeLimit
+        if not any(
+            (v := pyo.value(model.u[k], exception=False)) is not None and v > 1 - 1e-4
+            for k in range(instance.V)
+        ):
+            return {}, float("inf"), list(instance.C), timed_out
 
         costo_total = pyo.value(model.obj)
 
@@ -185,11 +217,11 @@ class MILPSolver(BaseSolver):
         # ===============================
         no_visitados = [c for c in instance.C if c not in visitados]
 
-        return rutas, costo_total, no_visitados
-    
+        return rutas, costo_total, no_visitados, timed_out
+
     def solve(self, instance: ProblemInstance) -> Solution:
-        rutas, costo, no_visitados = self.milp2a2_solver(instance)
-        return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
+        rutas, costo, no_visitados, timed_out = self.milp2a2_solver(instance)
+        return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0, unserved_customers=no_visitados, timed_out=timed_out)
 
     def is_stochastic(self) -> bool:
         return False

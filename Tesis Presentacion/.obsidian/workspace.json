@@ -1,0 +1,230 @@
+{
+  "main": {
+    "id": "3f442a77b3fc522a",
+    "type": "split",
+    "children": [
+      {
+        "id": "7fb928ddb53edd1a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c64c74c947477ca6",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Questions/Papers.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Papers"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "6d49c15a74198396",
+    "type": "split",
+    "children": [
+      {
+        "id": "0c5842cf4b2e675c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bf7567233faad58b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "f4d277140b9d597f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "1f5dd2464aed02ad",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 272.5
+  },
+  "right": {
+    "id": "861915952110af11",
+    "type": "split",
+    "children": [
+      {
+        "id": "32e231f1037a6140",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4064572f2c962479",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Topics/02 Literatura Previa/02 VRP en el agro.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 02 VRP en el agro"
+            }
+          },
+          {
+            "id": "cfcde973cb6d80f2",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Topics/02 Literatura Previa/02 VRP en el agro.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 02 VRP en el agro"
+            }
+          },
+          {
+            "id": "feeba59db1838448",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "e7704ce6a0d79ec6",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "99fc1fe84e36c19e",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Topics/02 Literatura Previa/02 VRP en el agro.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 02 VRP en el agro"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "c64c74c947477ca6",
+  "lastOpenFiles": [
+    "Questions/LP VS MILP.md",
+    "Questions/BIG-M.md",
+    "Main concepts/Tree-structured Parzen Estimator.md",
+    "Main concepts/NP-HARD.md",
+    "Main concepts/Nearest Neighbor.md",
+    "Main concepts/MILP.md",
+    "Main concepts/Lugar de pick-up != drop-down.md",
+    "Main concepts/Heurísticas y Metaheurísticas.md",
+    "Main concepts/Branch and Bound.md",
+    "Main concepts/ACO.md",
+    "Questions/Papers.md",
+    "Defensa oral tesis.md",
+    "Screenshot from 2026-07-13 11-15-38.png",
+    "Topics/00 Bienvenida.md",
+    "Topics/07 Resultados/04 Trabajos Futuros.md",
+    "Topics/07 Resultados/03 Concluciones.md",
+    "Topics/07 Resultados/02 Comparaciones.md",
+    "Topics/07 Resultados/01 Bases.md",
+    "Topics/06 Optimización de hiperparámetros/01 Optimización de hiperparámetros.md",
+    "Topics/05 Framework y configuraciones/01 Framework y configuraciones.md",
+    "Topics/04 Metodologias de Resolucion/04 MILP.md",
+    "Topics/04 Metodologias de Resolucion/03 ACO.md",
+    "Topics/04 Metodologias de Resolucion/02 TWNN.md",
+    "Topics/04 Metodologias de Resolucion/01 Metodologías de resolución - Intro.md",
+    "Topics/03 Formulacion del Problema/01 Formulacion del modelo matematico.md",
+    "Topics/02 Literatura Previa/03 Variantes de VRP - Definicion del problema.md",
+    "Topics/02 Literatura Previa/02 VRP en el agro.md",
+    "Topics/07 Resultados",
+    "Topics/06 Optimización de hiperparámetros",
+    "Topics/05 Framework y configuraciones",
+    "Untitled",
+    "Questions",
+    "Src/meme1.jpg",
+    "Src/meme0.png",
+    "Src",
+    "meme1.jpg",
+    "meme0.png",
+    "Topics/04 Metodologias de Resolucion",
+    "Main concepts",
+    "Topics/02 Literatura Previa",
+    "Untitled 1.base"
+  ]
+}

@@ -212,6 +212,20 @@ pip install gurobipy
 
 Ver [docs/TESTS.md](docs/TESTS.md).
 
+---
+
+### thesis/ — Entregables de la tesis
+
+Esta carpeta agrupa los archivos finales de la tesis (no son código del framework):
+
+- [`thesis/Tesis-Final.pdf`](thesis/Tesis-Final.pdf) — documento final de la tesis.
+- [`thesis/presentation/`](thesis/presentation/) — diapositivas de la defensa oral (`Tesis-Presentacion.pptx` y `.pdf`).
+- `thesis/database/run_results.sqlite` — base sqlite con todos los resultados de los experimentos (tabla `run_results`), generada a partir de [`run_results.sql`](run_results.sql) (dump de PostgreSQL que cargan las notebooks de [`analysis/essay/`](analysis/essay/)).
+  Este archivo **no está en el repo** (pesa ~190MB, supera el límite de 100MB de GitHub). Para regenerarlo localmente:
+  ```bash
+  python scripts/build_results_db.py
+  ```
+
 ### Experimentos
 
 Aunque al ejecutar [main.py](main.py) el experimento se inicia automáticamente con la configuración definida en [conf](conf/)

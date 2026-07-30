@@ -1,0 +1,20 @@
+# Base parameters
+time_windows_values: [5, 10]
+
+# Factor de escala para T_MAX: T_MAX = mean_hop * avg_hops_per_route * tmax_factor
+tmax_factor: 1.5
+
+# Selectors
+cost_range: low
+tw_tightness: loose
+
+# Available options
+matrix_costs_ranges:
+  low: [1, 20]
+  high: [100, 200]
+  high_dispersion: [1, 300]
+
+time_windows_tightness:
+  loose: [0, 500]
+  tight: [0, 20]
+  critical: [0, 7]

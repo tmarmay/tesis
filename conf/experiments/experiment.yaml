@@ -12,8 +12,8 @@ capacity: [100]
 vehicle_penalty: 0
 customer_demand: 1
 seed: 42
-num_instances: 5
-instance_reps: 10
+num_instances: 1
+instance_reps: 1
 timeout: 900
 parallel_reps: true
 reserved_cpus: 2

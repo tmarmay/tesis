@@ -30,12 +30,15 @@ class NearestNeighborSolver(BaseSolver):
 
             u = current_node[instance.DEPOTS[v]]
 
+            ret = instance.RETURNS[instance.DEPOTS[v]]
             for c in C:
                 travel = instance.tij[u][c]
                 arrival = current_time[v] + travel
                 start_service = max(arrival, instance.ei[c])
 
                 if start_service <= instance.li[c]:
+                    if start_service + instance.tij[c][ret] > instance.li[ret]:
+                        continue
                     if start_service < best_time:
                         best_time = start_service
                         best_v = v
@@ -184,10 +187,12 @@ class NearestNeighborSolver(BaseSolver):
             return Solution(feasible=False, total_cost=float("inf"), routes={}, unserved_customers=unsolved_clients)
         
         rutas, costo, no_visitados = self.phase_two(instance, assign)
+        if rutas is None:
+            return Solution(feasible=False, total_cost=float("inf"), routes={}, unserved_customers=no_visitados)
         return Solution(routes=rutas, total_cost=costo, feasible=len(no_visitados)==0,unserved_customers=no_visitados)
 
     def is_stochastic(self) -> bool:
-        return True
+        return False
 
     def get_solver_name(self) -> str:
         return "TWNN"

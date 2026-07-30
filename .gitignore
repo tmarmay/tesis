@@ -5,3 +5,7 @@ outputs/*
 multirun/
 .env
 single-execution-example.json
+
+# generado a partir de run_results.sql con scripts/build_results_db.py (~190MB, supera el limite de GitHub)
+thesis/database/*.sqlite
+*.log
