@@ -31,7 +31,7 @@ Se comparan tres enfoques: una heurística **Nearest Neighbor** (baseline), una 
 |---|---|
 | Documento final de la tesis | [`thesis/Tesis-Final.pdf`](thesis/Tesis-Final.pdf) |
 | Diapositivas de la defensa oral | [`thesis/presentation/`](thesis/presentation/) (`Tesis-Presentacion.pptx` y `.pdf`) |
-| Resultados de todos los experimentos | `thesis/database/run_results.sqlite` (tabla `run_results`). No está en el repo por tamaño (~190MB); se regenera con `python scripts/build_results_db.py` a partir de [`run_results.sql`](run_results.sql) |
+| Resultados de los experimentos que fueron al informe | [`thesis/database/run_results.sqlite`](thesis/database/run_results.sqlite) (tabla `run_results`), filtrada a las instancias con `experiment_id` que empieza con `turing8_`. Se regenera con `python scripts/build_results_db.py` a partir del dump completo de PostgreSQL `run_results.sql` (no está en el repo por tamaño, ~154MB, es local) |
 | Notas de preparación de la defensa | [`Tesis Presentacion/`](Tesis%20Presentacion/) (vault de Obsidian) |
 | Papers de referencia | [`papers/`](papers/) |
 

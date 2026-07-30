@@ -1,5 +1,8 @@
 """Convierte el dump de PostgreSQL run_results.sql a una base sqlite en thesis/database/.
 
+Se queda solo con las instancias usadas en el informe de la tesis
+(experiment_id que empieza con "turing8_").
+
 Uso:
     python scripts/build_results_db.py
 """
@@ -15,6 +18,7 @@ SRC = ROOT / "run_results.sql"
 DST = ROOT / "thesis" / "database" / "run_results.sqlite"
 
 COPY_RE = re.compile(r"COPY public\.run_results \((.+?)\) FROM stdin;\n(.*?)\\\.", re.DOTALL)
+EXPERIMENT_PREFIX = "turing8_"
 
 
 def main():
@@ -24,6 +28,7 @@ def main():
     data = match.group(2)
 
     df = pd.read_csv(StringIO(data), sep="\t", names=columns, na_values=["\\N"])
+    df = df[df["experiment_id"].str.startswith(EXPERIMENT_PREFIX, na=False)].reset_index(drop=True)
 
     for col in ("feasible", "valid"):
         if col in df.columns:
