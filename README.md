@@ -40,7 +40,7 @@ data/
 models/
 solvers/
 simulations/
-visualizastions/
+analysis/
 main.py
 ```
 
@@ -146,16 +146,16 @@ Ejemplos de casos borde:
 
 ---
 
-### visualizations/
+### analysis/
 
-Herramientas para análisis y visualización:
+Notebooks de análisis, separados por etapa:
 
-- evolución de costos  
-- comparación entre solvers  
-- rutas construidas  
-- convergencia del ACO  
+- `analysis/exploratory/`  
+  Notebooks de exploración inicial (`research.ipynb`, `results_analysis.ipynb`, `solvers-comparison.ipynb`, `aco_hyperparameter.ipynb`, `twnn.ipynb`, `milp_solvers.ipynb`, `debug_milp_C5_V10.ipynb`).  
+  Fueron el punto de partida de los análisis y guiaron el diseño de los de `report/`; algunos referencian archivos que ya no existen (`backup.sql`, `results/old_db_results.db`) y no corren tal cual.
 
-Esta carpeta no interviene en la lógica de resolución.
+- `analysis/report/`  
+  Notebooks que generaron las figuras y tablas que efectivamente fueron al informe de la tesis (`analysis_aco.ipynb`, `analysis_milp.ipynb`, `analysis_twnn.ipynb`, `analysis_comparison.ipynb`, `analysis_aco_hiper_params.ipynb`), junto con los datasets (`Aco.csv`, `Gurobi.csv`, `HiGHS.csv`, `Twnn.csv`, etc.) y las figuras exportadas (`figures/`).
 
 ---
 
