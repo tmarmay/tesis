@@ -5,5 +5,5 @@ solver: all
 solvers:
   gurobi: gurobi
   highs: highs
-  cbc: cbc
-  glpk: glpk
+  # glpk: glpk
+  # cbc: cbc

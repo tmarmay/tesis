@@ -99,6 +99,7 @@ class ACOSolverV2(BaseSolver):
                 break
 
             candidatos = []
+            return_node = RETURNS[d]
             for j in pendientes:
                 travel = tij[current][j]
                 arrival = current_time + travel
@@ -107,6 +108,10 @@ class ACOSolverV2(BaseSolver):
                     continue
 
                 start_service = max(arrival, ei[j])
+
+                # Verificar que tras servir j el vehículo pueda volver a tiempo
+                if start_service + tij[j][return_node] > li[return_node]:
+                    continue
                 score = travel + self.W_URGENCY * start_service
                 eta = (1.0 / score) ** self.BETA
                 tau = tau_route[current][j] ** self.ALPHA
@@ -234,7 +239,9 @@ class ACOSolverV2(BaseSolver):
         #for iteration in range(self.NUM_ITER):
         import time
         start = time.time()
-        while time.time() - start < 60:
+        sols = []
+        while time.time() - start < 600:
+            sols.append((time.time() - start, mejor_costo_global))
             solutions = []
 
             for k in range(self.NUM_ANTS):
@@ -300,7 +307,7 @@ class ACOSolverV2(BaseSolver):
 
             tau_assign = np.clip(tau_assign, self.TAU_MIN, self.TAU_MAX)
             tau_route = np.clip(tau_route, self.TAU_MIN, self.TAU_MAX)
-
+        print(f'[{sols}]')
         if mejor_rutas_global is not None:
             mejor_rutas_global = self.eliminate_vehicles(mejor_rutas_global, instance)
             for d, ruta in mejor_rutas_global.items():

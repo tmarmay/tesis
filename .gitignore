@@ -5,3 +5,9 @@ outputs/*
 multirun/
 .env
 single-execution-example.json
+
+# dump completo de PostgreSQL (~154MB, supera el limite de GitHub); solo local,
+# fuente de thesis/database/run_results.sqlite via scripts/build_results_db.py
+run_results.sql
+run_results-pre.sql
+*.log
