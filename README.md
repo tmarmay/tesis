@@ -35,6 +35,7 @@ Se comparan tres enfoques: una heurística **Nearest Neighbor** (baseline), una 
 | Resultados de los experimentos que fueron al informe | [`thesis/database/run_results.sqlite`](thesis/database/run_results.sqlite) (tabla `run_results`), filtrada a las instancias con `experiment_id` que empieza con `turing8_`. Se regenera con `python scripts/build_results_db.py` a partir del dump completo de PostgreSQL `run_results.sql` (no está en el repo por tamaño, ~154MB, es local) |
 | Notas de preparación de la defensa | [`Tesis Presentacion/`](Tesis%20Presentacion/) (vault de Obsidian) |
 | Papers de referencia | [`papers/`](papers/), listado y descripción en [`papers/README.md`](papers/README.md) |
+| Historial de correcciones a la tesis | [`CHANGELOG.md`](CHANGELOG.md) |
 
 #### El código del framework
 
